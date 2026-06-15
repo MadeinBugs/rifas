@@ -101,11 +101,24 @@ export async function criarPixParaNumero(args: {
     throw new Error("Mercado Pago não retornou o id da order.");
   }
 
+  const qrCode = pm?.qr_code ?? null;
+  const qrCodeBase64 = pm?.qr_code_base64 ?? null;
+
+  // Diagnóstico: se o QR não veio no caminho esperado da Orders API
+  // (payment_method.qr_code/qr_code_base64), registra a estrutura real do
+  // pagamento. Útil para conferir no 1º Pix real de teste.
+  if (!qrCode && !qrCodeBase64) {
+    console.error(
+      "[mercadopago] Order sem QR Code no caminho esperado. Estrutura retornada:",
+      JSON.stringify(pagamento ?? resposta, null, 2),
+    );
+  }
+
   return {
     orderId: resposta.id,
     paymentId: pagamento?.id ?? null,
-    qrCode: pm?.qr_code ?? null,
-    qrCodeBase64: pm?.qr_code_base64 ?? null,
+    qrCode,
+    qrCodeBase64,
     ticketUrl: pm?.ticket_url ?? null,
     status: resposta.status ?? null,
   };
@@ -178,6 +191,14 @@ export function validarAssinaturaWebhook(args: {
 
   const a = Buffer.from(esperado, "hex");
   const b = Buffer.from(v1, "hex");
-  if (a.length !== b.length) return false;
-  return crypto.timingSafeEqual(a, b);
+  const ok = a.length === b.length && crypto.timingSafeEqual(a, b);
+  if (!ok) {
+    // NÃO vaza o secret: o manifest contém apenas data.id + request-id + ts
+    // (dados públicos da notificação). Ajuda a diagnosticar 401 silencioso.
+    console.warn(
+      "[webhook] assinatura não confere. Manifest usado:",
+      manifest,
+    );
+  }
+  return ok;
 }

@@ -100,7 +100,7 @@ export async function POST(request: Request) {
     const pix = await criarPixParaNumero({
       numero,
       nome,
-      email: email || `comprador${numero}@salveosuspiro.com.br`,
+      email: email || emailPlaceholder(numero),
       // Chave de idempotência estável por reserva (mesma reserva = mesma cobrança).
       idempotencyKey: `rifa-${numero}-${reservadoEm}`,
     });
@@ -148,4 +148,26 @@ async function liberar(
     .from("compradores")
     .update({ nome: null, whatsapp: null, email: null, pix_id: null })
     .eq("numero", numero);
+}
+
+/**
+ * E-mail placeholder para quando o comprador não informa (o MP exige e-mail no
+ * pagador). Usa o host real do site (domínio que resolve) em vez de um domínio
+ * inventado, reduzindo o risco de o MP recusar. Cai para o domínio de produção
+ * se a base URL for localhost.
+ */
+function emailPlaceholder(numero: number): string {
+  let host = "salveosuspiro.vercel.app";
+  try {
+    const base = process.env.NEXT_PUBLIC_BASE_URL;
+    if (base) {
+      const h = new URL(base).hostname; // sem porta
+      if (h.includes(".") && h !== "localhost" && !h.endsWith(".localhost")) {
+        host = h;
+      }
+    }
+  } catch {
+    // mantém o host de produção
+  }
+  return `rifa-${numero}@${host}`;
 }
