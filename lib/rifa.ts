@@ -1,0 +1,27 @@
+/**
+ * Configuração e tipos compartilhados da rifa.
+ * Centralizado para o frontend e o backend usarem os mesmos valores.
+ */
+
+export const TOTAL_NUMEROS = 500;
+export const PRECO_POR_NUMERO = 10; // R$
+export const PREMIO = "R$ 100 em iFood Card";
+
+/** Meta de arrecadação (R$). Usada na barra de progresso da história. */
+export const META_ARRECADACAO = TOTAL_NUMEROS * PRECO_POR_NUMERO; // R$ 5.000
+
+export type NumeroStatus = "livre" | "reservado" | "pago";
+
+/** Linha pública da tabela `numeros` (sem dados pessoais). */
+export type NumeroRow = {
+  numero: number;
+  status: NumeroStatus;
+};
+
+/** Formata um valor numérico (em reais) como moeda BRL. */
+export function formatBRL(valor: number): string {
+  return valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
