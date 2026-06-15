@@ -24,3 +24,12 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.botao-voltar {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-emerald-700, #047857);
+}
+.botao-voltar:hover {
+  text-decoration: underline;
+}

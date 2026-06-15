@@ -102,19 +102,22 @@ create policy "numeros_public_read"
 1. Cliente abre / → vê grid (Realtime em `numeros`: atualiza sozinho)
 2. Clica num número livre → vai pra /comprar/[numero]
 3. Preenche Nome + WhatsApp (email opcional) → POST /api/reservar
-   ├── Backend (service role): UPDATE numeros SET status='reservado'
-   │   WHERE numero=X AND status='livre' (ou reserva vencida) ← ATÔMICO + LAZY EXPIRE
+   ├── Backend (service role): RPC `reservar_numero(p_numero)` no Postgres
+   │   UPDATE numeros SET status='reservado' WHERE numero=X
+   │   AND (status='livre' OU reserva vencida) ← ATÔMICO + LAZY EXPIRE
    ├── Grava PII em `compradores` (nome/whatsapp/email)
-   ├── Se conseguiu: cria Pix no MP
-   │     • external_reference = numero
+   ├── Se conseguiu: cria order Pix no MP (API de Orders)
+   │     • type='online', processing_mode='automatic'
+   │     • external_reference = `rifa-<numero>`
+   │     • transactions.payments[0].payment_method = { id:'pix', type:'bank_transfer' }
    │     • date_of_expiration ≈ 15min (casado com a reserva)
-   │     • header X-Idempotency-Key = rifa-<numero>-<timestamp>
-   └── Retorna QR Code + código copia-e-cola
+   │     • requestOptions.idempotencyKey = `rifa-<numero>-<reservado_em>`
+   └── Retorna QR Code (qr_code_base64) + código copia-e-cola (qr_code)
 4. Página mostra QR Code + faz polling em /api/status a cada 5s
 5. Cliente paga no banco
-6. MP envia POST → /api/webhook
+6. MP envia POST → /api/webhook (tópico `order`)
    ├── Valida assinatura (header x-signature + x-request-id) com o secret do MP
-   ├── Faz GET /v1/payments/{id} e confirma status === 'approved'
+   ├── Faz GET /v1/orders/{id} e confirma status === 'processed' (ou pagamento 'approved')
    ├── Idempotente: marcar pago 2x não dispara efeito duplicado
    ├── UPDATE numeros SET status='pago'  +  compradores.pago_em=now()
    └── Realtime risca o número pra todos automaticamente ✅
@@ -149,23 +152,26 @@ on conflict (numero) do update
       pix_id=null, pago_em=null;
 ```
 
-### 2. Webhook do Mercado Pago — SEMPRE validar
+### 2. Webhook do Mercado Pago — SEMPRE validar (API de Orders)
 ```
-NUNCA confie no payload cru. Ao receber notificação:
+NUNCA confie no payload cru. Ao receber notificação (tópico `order`):
 1. VALIDE A ASSINATURA: monte o manifest com os headers x-signature
    (ts + v1) e x-request-id + data.id e compare o HMAC-SHA256 usando
    o secret de assinatura do webhook (MP_WEBHOOK_SECRET).
-2. Pegue o payment_id do corpo (data.id)
-3. Faça GET na API do MP: /v1/payments/{id}
-4. Confirme status === 'approved'
-5. IDEMPOTÊNCIA: se o número já estiver 'pago', responda 200 e pare
-   (não reprocessar). Marcar pago 2x não pode duplicar efeitos.
+   (data.id alfanumérico entra em minúsculas no manifest.)
+2. Pegue o order_id do corpo (data.id) ou da query (?data.id=)
+3. Faça GET na API do MP: /v1/orders/{id}
+4. Confirme status === 'processed' (ou algum pagamento 'approved')
+5. IDEMPOTÊNCIA: marcar pago só se ainda não estiver 'pago'
+   (UPDATE ... WHERE status != 'pago'). Reprocessar não duplica efeitos.
 6. Só então: UPDATE numeros SET status='pago'
-   + compradores SET pix_id=$id, pago_em=now()
-7. EDGE CASE: se o pagamento aprovou mas o número não está mais
-   reservado pra esse comprador (expirou e foi de outro), NÃO marque;
-   registre/avise você (plano B = estorno manual no painel do MP).
+   + compradores SET pix_id=<order_id>, pago_em=now()
+7. Assinatura inválida → 401. Order válida mas inexistente (ex.: id de
+   teste 123456) → responder 200 mesmo assim, pra o MP parar de reenviar.
 ```
+> Implementado em `lib/mercadopago.ts` (criar/consultar order + validar assinatura),
+> `lib/pagamento.ts` (confirmação idempotente) e `app/api/webhook/route.ts`.
+> O polling de `/api/status` também confirma no MP como fallback, caso o webhook atrase.
 
 ### 3. Expiração de reservas — `pg_cron` no Supabase (NÃO Vercel Cron)
 O Vercel Hobby limita cron a 1x/dia, então a expiração roda **dentro do Postgres**. Ative a extensão `pg_cron` (painel Supabase: **Database > Extensions** → ligar `pg_cron`) e agende:

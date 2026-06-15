@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { TOTAL_NUMEROS, PRECO_POR_NUMERO, formatBRL } from "@/lib/rifa";
+import { createServiceClient } from "@/lib/supabase-admin";
+import ComprarFlow from "@/components/ComprarFlow";
+import { TOTAL_NUMEROS } from "@/lib/rifa";
 
-// Placeholder da Fase 2. O fluxo de pagamento (form + QR Code Pix + polling)
-// será implementado na Fase 3.
 export const dynamic = "force-dynamic";
 
 export default async function ComprarPage({
@@ -18,32 +18,41 @@ export default async function ComprarPage({
     notFound();
   }
 
+  // Estado atual do número (server-side) para evitar mostrar o form de um número já pago.
+  let jaPago = false;
+  try {
+    const supabase = createServiceClient();
+    const { data } = await supabase
+      .from("numeros")
+      .select("status")
+      .eq("numero", n)
+      .single();
+    jaPago = data?.status === "pago";
+  } catch {
+    // Se a checagem falhar, deixamos o fluxo normal seguir (a reserva validará de novo).
+  }
+
   return (
-    <main className="mx-auto flex min-h-full w-full max-w-md flex-1 flex-col items-center justify-center gap-6 px-6 py-16 text-center">
-      <span className="text-5xl" role="img" aria-label="bilhete">
-        🎟️
-      </span>
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Número {n} selecionado
-        </h1>
-        <p className="text-zinc-600 dark:text-zinc-400">
-          Valor: <strong>{formatBRL(PRECO_POR_NUMERO)}</strong>
-        </p>
-      </div>
-
-      <div className="rounded-2xl border border-dashed border-zinc-300 p-5 text-sm text-zinc-500 dark:border-zinc-700">
-        O formulário e o pagamento via Pix chegam na{" "}
-        <strong>Fase 3</strong>. Por enquanto, esta página confirma que a
-        navegação a partir da grade está funcionando.
-      </div>
-
-      <Link
-        href="/"
-        className="text-sm font-medium text-emerald-700 hover:underline dark:text-emerald-400"
-      >
-        ← Voltar para a grade
-      </Link>
+    <main className="mx-auto flex min-h-full w-full max-w-md flex-1 flex-col justify-center gap-6 px-6 py-16">
+      {jaPago ? (
+        <div className="flex flex-col items-center gap-4 text-center">
+          <span className="text-5xl" role="img" aria-hidden>
+            ✅
+          </span>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Número {n} já foi pago
+          </h1>
+          <p className="max-w-sm text-zinc-600 dark:text-zinc-400">
+            Este número já tem dono. Escolha outro na grade para participar!
+          </p>
+          <Link href="/" className="botao-voltar">
+            ← Escolher outro número
+          </Link>
+        </div>
+      ) : (
+        <ComprarFlow numero={n} />
+      )}
     </main>
   );
 }
+

@@ -7,6 +7,9 @@ export const TOTAL_NUMEROS = 500;
 export const PRECO_POR_NUMERO = 10; // R$
 export const PREMIO = "R$ 100 em iFood Card";
 
+/** Minutos que um número fica reservado aguardando o pagamento do Pix. */
+export const RESERVA_MINUTOS = 15;
+
 /** Meta de arrecadação (R$). Usada na barra de progresso da história. */
 export const META_ARRECADACAO = TOTAL_NUMEROS * PRECO_POR_NUMERO; // R$ 5.000
 
