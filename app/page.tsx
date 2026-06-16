@@ -110,9 +110,6 @@ function Capa() {
             className="object-cover"
           />
         </div>
-        <figcaption className="pt-3 font-[family-name:var(--font-caveat)] text-xl text-rose-deep">
-          nosso companheirinho de quatro patas 💛
-        </figcaption>
       </figure>
 
       <div className="flex max-w-md flex-col gap-3 text-base leading-relaxed text-ink/85">

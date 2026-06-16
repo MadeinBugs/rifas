@@ -1,57 +1,8 @@
 // Sons sutis via Web Audio API (sem arquivos de áudio). Tudo discreto, pra
-// combinar com o tom carinhoso do site. Regras importantes:
-//  - DESLIGADO por padrão (precisa ser ligado no botãozinho de som).
-//  - Só toca depois da primeira interação do usuário (política dos navegadores).
-//  - A preferência fica salva no localStorage.
-
-const CHAVE = "suspiro:som";
+// combinar com o tom carinhoso do site. Só tocam dentro de uma interação do
+// usuário (cliques), respeitando a política de autoplay dos navegadores.
 
 let contexto: AudioContext | null = null;
-let interagiu = false;
-
-// Mini-store para o estado "mudo", consumido via useSyncExternalStore.
-type Ouvinte = () => void;
-const ouvintes = new Set<Ouvinte>();
-
-/** Inscreve um ouvinte para mudanças na preferência de som. */
-export function inscreverSom(cb: Ouvinte): () => void {
-  ouvintes.add(cb);
-  return () => {
-    ouvintes.delete(cb);
-  };
-}
-
-function notificar(): void {
-  for (const cb of ouvintes) cb();
-}
-
-/** Snapshot para o cliente (lê o localStorage). */
-export function lerMudoCliente(): boolean {
-  return estaMudo();
-}
-
-/** Snapshot para o servidor: sempre mudo (sem áudio na renderização). */
-export function lerMudoServidor(): boolean {
-  return true;
-}
-
-/** Marca que o usuário já interagiu (libera o áudio nos navegadores). */
-export function liberarAudio(): void {
-  interagiu = true;
-}
-
-/** O som está mudo? Mudo por padrão. */
-export function estaMudo(): boolean {
-  if (typeof window === "undefined") return true;
-  return localStorage.getItem(CHAVE) !== "on";
-}
-
-/** Liga/desliga o som e salva a preferência. */
-export function definirMudo(mudo: boolean): void {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(CHAVE, mudo ? "off" : "on");
-  notificar();
-}
 
 function obterContexto(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -73,7 +24,6 @@ interface Nota {
 }
 
 function tocarNotas(notas: Nota[]): void {
-  if (estaMudo() || !interagiu) return;
   const ctx = obterContexto();
   if (!ctx) return;
   if (ctx.state === "suspended") ctx.resume().catch(() => {});

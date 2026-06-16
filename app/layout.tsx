@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Baloo_2, Quicksand, Nunito, Caveat } from "next/font/google";
 import "./globals.css";
-import BotaoSom from "@/components/BotaoSom";
 
 // Display: nome do Suspiro, títulos dos atos, números grandes.
 const baloo = Baloo_2({
@@ -49,7 +48,6 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         {children}
-        <BotaoSom />
       </body>
     </html>
   );
