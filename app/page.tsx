@@ -12,8 +12,9 @@ import {
   formatBRL,
   type NumeroRow,
 } from "@/lib/rifa";
-import { CreditCard, Gift, Ticket } from "@phosphor-icons/react/dist/ssr";
-import type { Icon } from "@phosphor-icons/react";
+import { Gift, Ticket } from "@phosphor-icons/react/dist/ssr";
+import type { ReactNode } from "react";
+import IconePix from "@/components/IconePix";
 
 export const dynamic = "force-dynamic";
 
@@ -187,21 +188,21 @@ function Chips() {
   return (
     <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       <Chip
-        Icone={Ticket}
+        icone={<Ticket weight="duotone" size={24} aria-hidden />}
         fundo="bg-peach/30"
         cor="text-rose-deep"
         titulo={`${TOTAL_NUMEROS} números`}
         texto={`${formatBRL(PRECO_POR_NUMERO)} cada`}
       />
       <Chip
-        Icone={Gift}
+        icone={<Gift weight="duotone" size={24} aria-hidden />}
         fundo="bg-peach/30"
         cor="text-rose-deep"
         titulo="Prêmio"
         texto={PREMIO}
       />
       <Chip
-        Icone={CreditCard}
+        icone={<IconePix size={24} />}
         fundo="bg-peach/30"
         cor="text-rose-deep"
         titulo="Pagamento"
@@ -212,13 +213,13 @@ function Chips() {
 }
 
 function Chip({
-  Icone,
+  icone,
   fundo,
   cor,
   titulo,
   texto,
 }: {
-  Icone: Icon;
+  icone: ReactNode;
   fundo: string;
   cor: string;
   titulo: string;
@@ -229,7 +230,7 @@ function Chip({
       <span
         className={`flex h-11 w-11 items-center justify-center rounded-full ${fundo} ${cor}`}
       >
-        <Icone weight="duotone" size={24} aria-hidden />
+        {icone}
       </span>
       <p className="font-[family-name:var(--font-quicksand)] text-sm font-semibold text-rose-deep">
         {titulo}
@@ -247,7 +248,7 @@ function Rodape() {
       </span>
       <p>
         Ação entre amigos · Pagamento seguro via Pix · Seus dados são usados
-        apenas para falar com você sobre esta ação.
+        apenas para entrar em contato sobre esta ação.
       </p>
     </footer>
   );

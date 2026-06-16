@@ -6,6 +6,7 @@ import QRCodePix from "@/components/QRCodePix";
 import { PRECO_POR_NUMERO, formatBRL } from "@/lib/rifa";
 import { dispararCoracoes } from "@/lib/efeitos";
 import { tocarChime, tocarPop } from "@/lib/som";
+import IconePix from "@/components/IconePix";
 
 type Props = { numero: number };
 
@@ -19,17 +20,46 @@ type Pix = {
 
 type Etapa = "form" | "enviando" | "pix" | "pago" | "indisponivel";
 
+/** Aplica a máscara (DDD) 9XXXX-XXXX ao digitar. */
+function mascaraTelefone(valor: string): string {
+  const d = valor.replace(/\D/g, "").slice(0, 11);
+  if (d.length === 0) return "";
+  if (d.length <= 2) return `(${d}`;
+  if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
+
+function validarTelefone(valor: string): string | null {
+  const d = valor.replace(/\D/g, "");
+  if (d.length === 0) return null;
+  if (d.length < 11) return "Número incompleto — use o formato (DDD) 9XXXX-XXXX";
+  if (d[2] !== "9") return "Celulares brasileiros têm 9 como primeiro dígito após o DDD";
+  return null;
+}
+
+function validarEmail(valor: string): string | null {
+  if (!valor.trim()) return null;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(valor.trim())
+    ? null
+    : "E-mail inválido — verifique e tente novamente";
+}
+
 export default function ComprarFlow({ numero }: Props) {
   const [etapa, setEtapa] = useState<Etapa>("form");
   const [nome, setNome] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [email, setEmail] = useState("");
   const [erro, setErro] = useState<string | null>(null);
+  const [tocadoWhatsapp, setTocadoWhatsapp] = useState(false);
+  const [tocadoEmail, setTocadoEmail] = useState(false);
   const [pix, setPix] = useState<Pix | null>(null);
   const [restante, setRestante] = useState<number>(0); // segundos
 
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
+    setTocadoWhatsapp(true);
+    setTocadoEmail(true);
+    if (validarTelefone(whatsapp) || validarEmail(email)) return;
     setErro(null);
     tocarPop();
     setEtapa("enviando");
@@ -174,12 +204,13 @@ export default function ComprarFlow({ numero }: Props) {
   return (
     <div className="cartao flex flex-col gap-6 px-6 py-8">
       <div className="text-center">
-        <h1 className="mt-1 font-[family-name:var(--font-baloo)] text-2xl font-bold text-mauve">
+        <h1 className="mt-1 font-[family-name:var(--font-baloo)] text-2xl font-bold text-rose-deep">
           Reservar o número {numero}
         </h1>
         <p className="mt-1 text-mauve/85">
-          Valor: <strong>{formatBRL(PRECO_POR_NUMERO)}</strong> · pagamento via
-          Pix
+          Valor:{" "}
+          <strong className="text-sage-deep">{formatBRL(PRECO_POR_NUMERO)}</strong>{" "}
+          · pagamento via Pix
         </p>
       </div>
 
@@ -195,19 +226,23 @@ export default function ComprarFlow({ numero }: Props) {
         <Campo
           label="WhatsApp (com DDD)"
           value={whatsapp}
-          onChange={setWhatsapp}
+          onChange={(v) => setWhatsapp(mascaraTelefone(v))}
+          onBlur={() => setTocadoWhatsapp(true)}
           placeholder="(11) 90000-0000"
           required
           inputMode="tel"
           autoComplete="tel"
+          erroValidacao={tocadoWhatsapp ? validarTelefone(whatsapp) : null}
         />
         <Campo
           label="E-mail (opcional)"
           value={email}
           onChange={setEmail}
+          onBlur={() => setTocadoEmail(true)}
           placeholder="voce@email.com"
           inputMode="email"
           autoComplete="email"
+          erroValidacao={tocadoEmail ? validarEmail(email) : null}
         />
 
         {erro && (
@@ -221,7 +256,14 @@ export default function ComprarFlow({ numero }: Props) {
           disabled={etapa === "enviando"}
           className="botao-primario mt-1 h-12 text-base"
         >
-          {etapa === "enviando" ? "Gerando Pix…" : "Gerar Pix 💚"}
+          {etapa === "enviando" ? (
+            "Gerando Pix…"
+          ) : (
+            <>
+              Gerar Pix{" "}
+              <IconePix size={18} className="inline-block align-middle" />
+            </>
+          )}
         </button>
       </form>
 
@@ -240,11 +282,13 @@ function Campo({
   label,
   value,
   onChange,
+  erroValidacao,
   ...rest
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
+  erroValidacao?: string | null;
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">) {
   return (
     <label className="flex flex-col gap-1.5 text-sm">
@@ -254,9 +298,17 @@ function Campo({
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-11 rounded-xl border border-rose-deep/15 bg-white px-3 text-ink outline-none transition focus:border-sage focus:ring-2 focus:ring-sage/30"
+        className={`h-11 rounded-xl border bg-white px-3 text-ink outline-none transition focus:ring-2 ${
+          erroValidacao
+            ? "border-rose/60 focus:border-rose focus:ring-rose/20"
+            : "border-rose-deep/15 focus:border-sage focus:ring-sage/30"
+        }`}
+        aria-invalid={erroValidacao ? true : undefined}
         {...rest}
       />
+      {erroValidacao && (
+        <span className="text-xs text-rose-deep">{erroValidacao}</span>
+      )}
     </label>
   );
 }
