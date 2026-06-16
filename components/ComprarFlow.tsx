@@ -138,7 +138,7 @@ export default function ComprarFlow({ numero }: Props) {
       >
         <BarraComemoracao />
         <p className="self-end text-right text-base italic text-rose-deep/55">
-          — Bela e Andress, pais do Suspiro
+          ~ Bela e Andress, pais do Suspiro
         </p>
         <Link href="/" className="botao-primario mt-1">
           Voltar para a grade
