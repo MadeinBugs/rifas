@@ -1,8 +1,9 @@
+"use server";
+
 import { login } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export async function submitLogin(formData: FormData) {
-  "use server";
   const password = formData.get("password")?.toString() || "";
   const success = await login(password);
   

@@ -1,6 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { createServiceClient } from "@/lib/supabase-admin";
 import { PRECO_POR_NUMERO } from "@/lib/rifa";
+import { logoutAction } from "./actions";
 
 interface CompradorJoin {
   numero: number;
@@ -10,6 +11,16 @@ interface CompradorJoin {
   email: string | null;
   pix_id: string | null;
   pago_em: string | null;
+}
+
+/** Formato bruto retornado pelo Supabase para cada linha da query. */
+interface RawNumeroRow {
+  numero: number;
+  status: string;
+  compradores:
+    | { nome: string | null; whatsapp: string | null; email: string | null; pix_id: string | null; pago_em: string | null }
+    | { nome: string | null; whatsapp: string | null; email: string | null; pix_id: string | null; pago_em: string | null }[]
+    | null;
 }
 
 export default async function AdminPage() {
@@ -39,7 +50,7 @@ export default async function AdminPage() {
     );
   }
 
-  const dados = (rawData || []).map((row: any) => {
+  const dados = (rawData as RawNumeroRow[] || []).map((row) => {
     // Supabase retorna array para relação 1:1 devido a referências
     const c = Array.isArray(row.compradores) ? row.compradores[0] : row.compradores;
     return {
@@ -71,9 +82,14 @@ export default async function AdminPage() {
             <a href="/sorteio" className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition shadow-sm">
               🎉 Ir para o Sorteio
             </a>
-            <div className="text-sm text-gray-500">
-              Você está logado de forma segura.
-            </div>
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                className="text-sm text-gray-500 hover:text-red-600 transition px-3 py-2 rounded hover:bg-red-50"
+              >
+                Sair
+              </button>
+            </form>
           </div>
         </header>
 

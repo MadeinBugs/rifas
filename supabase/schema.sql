@@ -63,6 +63,22 @@ grant select, insert, update, delete on public.numeros to service_role;
 -- Apenas o backend (service role) acessa os dados pessoais.
 grant select, insert, update, delete on public.compradores to service_role;
 
+-- ── Tabela SORTEIO (singleton: apenas 1 linha) ──
+-- Persiste o vencedor para que o resultado seja auditável e irreversível
+-- sem ação explícita. id = 1 é forçado via check, garantindo uma única linha
+-- a nível de banco (tentativa de 2ª inserção = conflito de PK).
+-- Nome do ganhador é resolvido via join com `compradores` em runtime (PII separado).
+create table if not exists public.sorteio (
+  id          int primary key default 1 check (id = 1),
+  numero      int not null references public.numeros(numero) on delete restrict,
+  sorteado_em timestamptz not null default now()
+);
+
+alter table public.sorteio enable row level security;
+-- Nenhuma policy para anon/authenticated → invisível ao client.
+-- Apenas o backend (service role) acessa.
+grant select, insert, update, delete on public.sorteio to service_role;
+
 -- ── Realtime: publicar SOMENTE a tabela `numeros` ──
 -- (equivale a marcar a tabela em Database > Replication no painel)
 do $$
