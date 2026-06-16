@@ -137,20 +137,24 @@ export async function POST(request: Request) {
     });
   } catch (e) {
     const detalhe = extrairErroMP(e);
+    // Prefixo do token (NÃO o token todo) só para diagnóstico: confirma se o
+    // ambiente está usando a credencial esperada. Os ~18 primeiros chars não
+    // revelam o segredo.
+    const tokenPrefix = (process.env.MP_ACCESS_TOKEN ?? "AUSENTE").slice(0, 18);
     console.error(
       "[reservar] erro ao criar Pix no Mercado Pago:",
-      detalhe,
-      e,
+      JSON.stringify(detalhe),
+      "tokenPrefix:",
+      tokenPrefix,
     );
     // Rollback: libera o número para não ficar preso.
     await liberar(supabase, numero);
     return NextResponse.json(
       {
         erro: "Não foi possível gerar o Pix. Tente novamente.",
-        // Diagnóstico seguro: a mensagem/status/código do MP não contêm o token.
-        detalhe: detalhe.message,
-        mpStatus: detalhe.status,
-        mpCode: detalhe.code,
+        // Diagnóstico seguro (não contém o token).
+        detalhe,
+        tokenPrefix,
       },
       { status: 502 },
     );

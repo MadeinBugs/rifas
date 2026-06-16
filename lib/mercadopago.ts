@@ -23,24 +23,31 @@ function getOrderClient(): Order {
 
 /**
  * Extrai detalhes seguros de um erro do SDK do Mercado Pago.
- * O objeto de erro do SDK tem o formato { message, status, code, ... }.
+ * O erro pode vir como { message, status, code } OU como um corpo de API
+ * aninhado { errors: [...] } / { cause: [...] }. Capturamos ambos.
  * Nenhum desses campos contém o access token, então é seguro logar/retornar.
  */
-export function extrairErroMP(e: unknown): {
-  message: string;
-  status?: number;
-  code?: string;
-} {
+export function extrairErroMP(e: unknown): Record<string, unknown> {
   if (e && typeof e === "object") {
     const o = e as Record<string, unknown>;
-    return {
-      message:
-        typeof o.message === "string"
-          ? o.message
-          : "Erro desconhecido do Mercado Pago.",
-      status: typeof o.status === "number" ? o.status : undefined,
-      code: typeof o.code === "string" ? o.code : undefined,
+    const out: Record<string, unknown> = {
+      name: e.constructor?.name,
+      keys: Object.keys(o),
     };
+    if (typeof o.message === "string") out.message = o.message;
+    if (typeof o.status === "number") out.status = o.status;
+    if (typeof o.code === "string") out.code = o.code;
+    if (o.errors) out.errors = o.errors; // corpo de erro da API (aninhado)
+    if (o.cause) out.cause = o.cause;
+    // Fallback: serializa propriedades não-enumeráveis (ex.: Error nativo).
+    try {
+      out.raw = JSON.parse(
+        JSON.stringify(o, Object.getOwnPropertyNames(o)),
+      );
+    } catch {
+      /* ignore */
+    }
+    return out;
   }
   return { message: e instanceof Error ? e.message : String(e) };
 }
