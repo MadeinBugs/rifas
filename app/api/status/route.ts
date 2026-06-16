@@ -22,7 +22,16 @@ export async function GET(request: Request) {
     return NextResponse.json({ erro: "Número inválido." }, { status: 400 });
   }
 
-  const supabase = createServiceClient();
+  let supabase: ReturnType<typeof createServiceClient>;
+  try {
+    supabase = createServiceClient();
+  } catch (e) {
+    console.error("[status] createServiceClient falhou:", e);
+    return NextResponse.json(
+      { erro: "Servidor mal configurado." },
+      { status: 500 },
+    );
+  }
 
   const { data, error } = await supabase
     .from("numeros")

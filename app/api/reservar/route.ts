@@ -47,7 +47,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ erro: "E-mail inválido." }, { status: 400 });
   }
 
-  const supabase = createServiceClient();
+  let supabase: ReturnType<typeof createServiceClient>;
+  try {
+    supabase = createServiceClient();
+  } catch (e) {
+    // Ex.: SUPABASE_SERVICE_ROLE_KEY ausente no ambiente (ex.: Vercel).
+    console.error("[reservar] createServiceClient falhou:", e);
+    return NextResponse.json(
+      { erro: "Servidor mal configurado. Avise o organizador." },
+      { status: 500 },
+    );
+  }
 
   // 1) Reserva atômica + expiração lazy (função no Postgres).
   const { data: reservado, error: errReserva } = await supabase.rpc(
@@ -63,9 +73,11 @@ export async function POST(request: Request) {
     );
   }
 
-  // A função retorna a linha reservada, ou null se o número não estava disponível.
+  // A função retorna a linha reservada, ou uma linha com campos nulos
+  // (PostgREST devolve {numero:null,...}, não null) se o número não estava
+  // disponível. Tratamos os dois casos.
   const linha = Array.isArray(reservado) ? reservado[0] : reservado;
-  if (!linha) {
+  if (!linha || linha.numero == null) {
     return NextResponse.json(
       { erro: "Este número acabou de ser escolhido por outra pessoa." },
       { status: 409 },
