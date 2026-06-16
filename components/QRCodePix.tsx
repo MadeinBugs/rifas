@@ -50,17 +50,17 @@ export default function QRCodePix({ qrCodeBase64, qrCode }: Props) {
           alt="QR Code do Pix"
           width={240}
           height={240}
-          className="rounded-xl border border-zinc-200 bg-white p-2 dark:border-zinc-700"
+          className="rounded-2xl border border-rose-deep/15 bg-white p-3 shadow-[0_4px_14px_-6px_rgba(181,131,141,0.3)]"
         />
       ) : (
-        <div className="flex h-[240px] w-[240px] items-center justify-center rounded-xl border border-dashed border-zinc-300 text-sm text-zinc-400 dark:border-zinc-700">
+        <div className="flex h-[240px] w-[240px] items-center justify-center rounded-2xl border border-dashed border-rose-deep/25 text-sm text-mauve/70">
           Gerando QR Code…
         </div>
       )}
 
       {qrCode && (
         <div className="flex w-full flex-col gap-2">
-          <p className="text-center text-xs text-zinc-500">
+          <p className="text-center text-xs text-mauve/80">
             Ou copie o código Pix:
           </p>
           <div className="flex items-stretch gap-2">
@@ -68,14 +68,14 @@ export default function QRCodePix({ qrCodeBase64, qrCode }: Props) {
               readOnly
               value={qrCode}
               onFocus={(e) => e.currentTarget.select()}
-              className="min-w-0 flex-1 truncate rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs dark:border-zinc-700 dark:bg-zinc-900"
+              className="min-w-0 flex-1 truncate rounded-xl border border-rose-deep/15 bg-cream px-3 py-2 text-xs text-ink"
             />
             <button
               type="button"
               onClick={copiar}
-              className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-700"
+              className="botao-primario shrink-0 px-4 py-2 text-xs"
             >
-              {copiado ? "Copiado!" : "Copiar"}
+              {copiado ? "Copiado! ✓" : "Copiar"}
             </button>
           </div>
         </div>

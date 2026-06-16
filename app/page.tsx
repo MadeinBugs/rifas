@@ -1,6 +1,10 @@
+import Image from "next/image";
 import { createAnonClient } from "@/lib/supabase";
 import GridNumeros from "@/components/GridNumeros";
 import HistoriaGato from "@/components/HistoriaGato";
+import { NumerosProvider } from "@/components/NumerosProvider";
+import BarraProgresso from "@/components/BarraProgresso";
+import { FOTO_CAPA } from "@/lib/fotos";
 import {
   PRECO_POR_NUMERO,
   PREMIO,
@@ -46,69 +50,132 @@ async function getNumeros(): Promise<Resultado> {
 
 export default async function Home() {
   const resultado = await getNumeros();
-  const pagos = resultado.ok
-    ? resultado.rows.filter((r) => r.status === "pago").length
-    : 0;
-  const arrecadado = pagos * PRECO_POR_NUMERO;
 
   return (
-    <main className="mx-auto flex min-h-full w-full max-w-3xl flex-1 flex-col gap-10 px-6 py-12">
-      {/* Hero */}
-      <section className="flex flex-col items-center gap-4 text-center">
-        <span className="text-6xl" role="img" aria-label="gatinho">
-          🐱
-        </span>
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Ação Solidária pelo Gatinho
-        </h1>
-        <p className="max-w-md text-base text-zinc-600 dark:text-zinc-400">
-          Uma ação entre amigos para ajudar no tratamento do nosso gatinho.
-          Escolha um número, contribua e concorra ao prêmio. 🍀
-        </p>
-      </section>
+    <main className="mx-auto flex min-h-full w-full max-w-3xl flex-1 flex-col gap-12 px-5 py-10 sm:px-6 sm:py-14">
+      <Capa />
 
-      {/* Cards de resumo */}
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card
-          titulo={`${TOTAL_NUMEROS} números`}
-          texto={`${formatBRL(PRECO_POR_NUMERO)} cada`}
-        />
-        <Card titulo="Prêmio único" texto={PREMIO} />
-        <Card titulo="Pagamento" texto="Pix via Mercado Pago" />
-      </section>
-
-      {/* História do gato + meta */}
-      <HistoriaGato arrecadado={arrecadado} />
-
-      {/* Grade de números (ou erro de conexão) */}
       {resultado.ok ? (
-        <GridNumeros initial={resultado.rows} />
+        <NumerosProvider initial={resultado.rows}>
+          {/* Barra de progresso ao vivo, em destaque */}
+          <div className="cartao anim-surgir px-6 py-6">
+            <BarraProgresso />
+          </div>
+
+          <Chips />
+
+          <HistoriaGato />
+
+          <section id="numeros" className="scroll-mt-6">
+            <GridNumeros />
+          </section>
+        </NumerosProvider>
       ) : (
-        <section className="rounded-2xl border border-red-200 bg-red-50 p-6 dark:border-red-900 dark:bg-red-950/30">
-          <p className="flex items-center gap-2 font-medium text-red-600 dark:text-red-400">
-            <span aria-hidden>❌</span> Não foi possível carregar os números
-          </p>
-          <p className="mt-2 text-sm break-words text-zinc-600 dark:text-zinc-400">
-            {resultado.message}
-          </p>
-        </section>
+        <>
+          <Chips />
+
+          <HistoriaGato />
+
+          <section id="numeros" className="cartao border-rose/40 bg-blush/10 p-6">
+            <p className="flex items-center gap-2 font-[family-name:var(--font-quicksand)] font-semibold text-rose-deep">
+              <span aria-hidden>🙀</span> Ops, não conseguimos carregar os números
+              agora
+            </p>
+            <p className="mt-2 text-sm break-words text-mauve">
+              Tente atualizar a página em instantes. ({resultado.message})
+            </p>
+          </section>
+        </>
       )}
 
-      <footer className="mt-auto pt-6 text-center text-xs text-zinc-400">
-        Ação entre amigos · Pagamento seguro via Pix · Os dados informados são
-        usados apenas para contato sobre esta ação.
-      </footer>
+      <Rodape />
     </main>
   );
 }
 
-function Card({ titulo, texto }: { titulo: string; texto: string }) {
+/** Cabeçalho com a foto de capa e o nome do Suspiro. */
+function Capa() {
   return (
-    <div className="rounded-2xl border border-zinc-200 p-4 text-center dark:border-zinc-800">
-      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+    <section className="flex flex-col items-center gap-5 text-center">
+      <p className="font-[family-name:var(--font-caveat)] text-2xl text-rose-deep">
+        uma ação entre amigos pelo
+      </p>
+      <h1 className="font-[family-name:var(--font-baloo)] text-5xl font-bold leading-none text-mauve sm:text-6xl">
+        Suspiro <span className="anim-flutuar inline-block">🐱</span>
+      </h1>
+
+      <figure className="polaroid mt-1 w-full max-w-lg -rotate-1">
+        <div className="relative aspect-[16/9] overflow-hidden rounded-[0.35rem]">
+          <Image
+            src={FOTO_CAPA.src}
+            alt={FOTO_CAPA.alt}
+            fill
+            priority
+            sizes="(max-width: 640px) 90vw, 32rem"
+            className="object-cover"
+          />
+        </div>
+        <figcaption className="pt-3 font-[family-name:var(--font-caveat)] text-xl text-rose-deep">
+          nosso companheirinho de quatro patas 💛
+        </figcaption>
+      </figure>
+
+      <p className="max-w-md text-base leading-relaxed text-ink/85">
+        O Suspiro está enfrentando um tratamento sério e a gente não quer fazer
+        isso sozinho. Escolha um número, ajude com carinho e ainda concorra a um
+        agrado. Cada número conta. 🍀
+      </p>
+    </section>
+  );
+}
+
+/** Três "stickers" com as informações essenciais. */
+function Chips() {
+  return (
+    <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <Chip
+        emoji="🎟️"
+        titulo={`${TOTAL_NUMEROS} números`}
+        texto={`${formatBRL(PRECO_POR_NUMERO)} cada`}
+      />
+      <Chip emoji="🎁" titulo="Prêmio" texto={PREMIO} />
+      <Chip emoji="💳" titulo="Pagamento" texto="Pix via Mercado Pago" />
+    </section>
+  );
+}
+
+function Chip({
+  emoji,
+  titulo,
+  texto,
+}: {
+  emoji: string;
+  titulo: string;
+  texto: string;
+}) {
+  return (
+    <div className="etiqueta flex flex-col items-center gap-0.5 px-4 py-4 text-center">
+      <span className="text-2xl" aria-hidden>
+        {emoji}
+      </span>
+      <p className="font-[family-name:var(--font-quicksand)] text-sm font-semibold text-rose-deep">
         {titulo}
       </p>
-      <p className="mt-1 font-semibold">{texto}</p>
+      <p className="text-sm text-mauve">{texto}</p>
     </div>
+  );
+}
+
+function Rodape() {
+  return (
+    <footer className="mt-auto flex flex-col items-center gap-1 pt-6 text-center text-xs text-mauve/70">
+      <span className="text-base" aria-hidden>
+        🐾 💛 🐾
+      </span>
+      <p>
+        Ação entre amigos · Pagamento seguro via Pix · Seus dados são usados
+        apenas para falar com você sobre esta ação.
+      </p>
+    </footer>
   );
 }

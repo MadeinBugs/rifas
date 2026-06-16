@@ -41,11 +41,13 @@ export default async function SorteioPage() {
   const resultadoInicial = await lerResultadoInicial();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <header className="flex items-center justify-between bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-          <h1 className="text-3xl font-bold text-gray-800">Sorteio da Rifa 🎉</h1>
-          <Link href="/admin" className="botao-voltar !mb-0 text-sm">
+    <div className="min-h-screen p-4 sm:p-8">
+      <div className="mx-auto max-w-6xl space-y-6">
+        <header className="cartao flex items-center justify-between p-6">
+          <h1 className="font-[family-name:var(--font-baloo)] text-3xl font-bold text-mauve">
+            Sorteio da Rifa 🎉
+          </h1>
+          <Link href="/admin" className="botao-voltar">
             &larr; Voltar ao Painel
           </Link>
         </header>

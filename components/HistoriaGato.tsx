@@ -1,89 +1,69 @@
-import { META_ARRECADACAO, formatBRL } from "@/lib/rifa";
+import Link from "next/link";
+import { JORNADA } from "@/lib/fotos";
+import Galeria from "./Galeria";
 
-type Props = {
-  /** Total já arrecadado (R$), calculado a partir dos números pagos. */
-  arrecadado: number;
-};
-
-// 🐱 PREENCHA AQUI os dados reais do gatinho.
-// Para as fotos: coloque os arquivos em /public (ex.: public/gato-1.jpg)
-// e troque `src: null` por `src: "/gato-1.jpg"` abaixo.
 const NOME_GATO = "Suspiro";
-const FOTOS: { src: string | null; legenda: string }[] = [
-  { src: null, legenda: "Foto 1" },
-  { src: null, legenda: "Foto 2" },
-  { src: null, legenda: "Foto 3" },
-];
 
-export default function HistoriaGato({ arrecadado }: Props) {
-  const progresso = Math.min(
-    100,
-    Math.round((arrecadado / META_ARRECADACAO) * 100),
-  );
-
+/**
+ * "A Jornada do Suspiro" — a história contada em 3 atos (resgate, dias felizes,
+ * tratamento), cada um com seu cluster de fotos espalhadas. Termina com um
+ * convite acolhedor para participar. A barra de progresso vive na capa.
+ */
+export default function HistoriaGato() {
   return (
-    <section className="flex flex-col gap-6 rounded-2xl border border-zinc-200 p-6 dark:border-zinc-800">
-      <div className="flex flex-col gap-2">
-        <h2 className="text-xl font-semibold tracking-tight">
-          A história do {NOME_GATO} 🐾
-        </h2>
-        <p className="text-zinc-600 dark:text-zinc-400">
-          {/* ✏️ Troque este texto pela história real: diagnóstico, tratamento
-              necessário, e por que a ajuda faz diferença. */}
-          Aqui vai a história do {NOME_GATO}: o diagnóstico, o tratamento de que
-          ele precisa e como a sua participação ajuda. Capriche neste texto — é o
-          que mais gera confiança e doações.
+    <section className="flex flex-col gap-14">
+      <div className="text-center">
+        <p className="font-[family-name:var(--font-caveat)] text-2xl text-rose-deep">
+          do começo até aqui
         </p>
+        <h2 className="font-[family-name:var(--font-baloo)] text-3xl font-bold text-mauve sm:text-4xl">
+          A Jornada do {NOME_GATO} 🐾
+        </h2>
       </div>
 
-      {/* Fotos */}
-      <div className="grid grid-cols-3 gap-3">
-        {FOTOS.map((foto, i) =>
-          foto.src ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              key={i}
-              src={foto.src}
-              alt={`${NOME_GATO} — ${foto.legenda}`}
-              className="aspect-square w-full rounded-xl object-cover"
-            />
-          ) : (
-            <div
-              key={i}
-              className="flex aspect-square w-full items-center justify-center rounded-xl border border-dashed border-zinc-300 text-center text-xs text-zinc-400 dark:border-zinc-700"
-            >
-              adicione uma foto
-              <br />
-              em /public
-            </div>
-          ),
-        )}
-      </div>
-
-      {/* Barra de progresso da meta */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-baseline justify-between text-sm">
-          <span className="font-medium">
-            {formatBRL(arrecadado)}{" "}
-            <span className="font-normal text-zinc-500">
-              de {formatBRL(META_ARRECADACAO)}
-            </span>
-          </span>
-          <span className="text-zinc-500">{progresso}%</span>
-        </div>
-        <div
-          className="h-3 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800"
-          role="progressbar"
-          aria-valuenow={progresso}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label="Progresso da arrecadação"
-        >
+      {JORNADA.map((ato, i) => (
+        <article key={ato.id} className="flex flex-col gap-6">
+          {/* Cabeçalho do ato */}
           <div
-            className="h-full rounded-full bg-emerald-500 transition-[width] duration-500"
-            style={{ width: `${progresso}%` }}
-          />
-        </div>
+            className={`flex flex-col gap-1 ${
+              i % 2 === 0
+                ? "sm:items-start sm:text-left"
+                : "sm:items-end sm:text-right"
+            } items-center text-center`}
+          >
+            <span className="font-[family-name:var(--font-caveat)] text-xl text-blush">
+              {ato.rotulo}
+            </span>
+            <h3 className="font-[family-name:var(--font-baloo)] text-2xl font-bold text-rose-deep sm:text-3xl">
+              {ato.titulo}
+            </h3>
+          </div>
+
+          {/* Fotos espalhadas */}
+          <Galeria fotos={ato.fotos} />
+
+          {/* Texto do ato */}
+          <p
+            className={`mx-auto max-w-2xl text-center text-lg leading-relaxed text-ink/85 ${
+              i % 2 === 0
+                ? "sm:mx-0 sm:text-left"
+                : "sm:ml-auto sm:mr-0 sm:text-right"
+            }`}
+          >
+            {ato.texto}
+          </p>
+        </article>
+      ))}
+
+      {/* Convite final */}
+      <div className="cartao flex flex-col items-center gap-4 px-6 py-9 text-center">
+        <p className="max-w-xl text-lg leading-relaxed text-ink/85">
+          Cada número escolhido é um pedacinho de esperança no tratamento do{" "}
+          {NOME_GATO}. Bora fazer parte dessa corrente do bem? 💛
+        </p>
+        <Link href="#numeros" className="botao-primario text-base">
+          Quero ajudar o {NOME_GATO} 🐾
+        </Link>
       </div>
     </section>
   );

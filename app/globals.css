@@ -1,35 +1,156 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ============================================================
+   Tema "aconchego" — Rifa Solidária do Suspiro
+   Paleta Muted Earthy Tones + creme + verde-sálvia.
+   Sem dark mode: o aconchego vem de um tema claro e quentinho.
+   ============================================================ */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Superfícies */
+  --color-cream: #fff7f1; /* fundo da página */
+  --color-surface: #fffaf6; /* cartões, polaroids */
+
+  /* Tons quentes (carinho/ternura) */
+  --color-peach: #ffcdb2;
+  --color-blush: #ffb4a2;
+  --color-rose: #e5989b;
+  --color-rose-deep: #b5838d;
+
+  /* Texto (cinza-quente, nunca preto puro) */
+  --color-mauve: #6d6875;
+  --color-ink: #4f444b;
+
+  /* Verde-sálvia (vida/esperança/disponível + CTA) */
+  --color-sage: #9caf88;
+  --color-sage-soft: #e7ede0;
+  --color-sage-deep: #6f8559; /* contraste p/ texto branco (WCAG) */
+  --color-sage-deeper: #5e7350;
+
+  /* Fontes (next/font) */
+  --font-display: var(--font-baloo); /* nome do Suspiro, títulos dos atos */
+  --font-head: var(--font-quicksand); /* subtítulos */
+  --font-sans: var(--font-nunito); /* corpo + números */
+  --font-hand: var(--font-caveat); /* legendas manuscritas */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Sombras fofas (tingidas de rosa-poeira, não cinza) */
+  --shadow-soft: 0 4px 14px -6px rgba(181, 131, 141, 0.3);
+  --shadow-cozy: 0 14px 34px -16px rgba(181, 131, 141, 0.5);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-cream);
+  /* leves "blobs" quentes pra dar vida ao fundo */
+  background-image:
+    radial-gradient(60rem 60rem at 110% -10%, rgba(255, 205, 178, 0.35), transparent 60%),
+    radial-gradient(50rem 50rem at -10% 10%, rgba(231, 237, 224, 0.5), transparent 55%);
+  background-attachment: fixed;
+  color: var(--color-ink);
+  font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* ── Primitivas fofas ─────────────────────────────────────── */
+
+.cartao {
+  background-color: var(--color-surface);
+  border: 1px solid rgba(181, 131, 141, 0.12);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.polaroid {
+  background: #fff;
+  padding: 0.6rem 0.6rem 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-cozy);
+  border: 1px solid rgba(181, 131, 141, 0.1);
+}
+
+/* Etiqueta tipo "sticker" */
+.etiqueta {
+  background-color: var(--color-surface);
+  border: 1px solid rgba(181, 131, 141, 0.16);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-soft);
+}
+
+/* CTA principal — verde-sálvia (vida/esperança, "pode tocar") */
+.botao-primario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--color-sage-deep);
+  color: #fff;
+  font-family: var(--font-head), sans-serif;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0.8rem 1.6rem;
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.botao-primario:hover {
+  background-color: var(--color-sage-deeper);
+  box-shadow: var(--shadow-cozy);
+}
+.botao-primario:active {
+  transform: scale(0.96);
+}
+.botao-primario:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Link "voltar" */
 .botao-voltar {
   font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-emerald-700, #047857);
+  font-weight: 600;
+  font-family: var(--font-head), sans-serif;
+  color: var(--color-rose-deep);
 }
 .botao-voltar:hover {
   text-decoration: underline;
+}
+
+/* ── Animações (gentis, desligadas em reduced-motion) ─────── */
+
+@keyframes flutuar {
+  0%, 100% { transform: translateY(0) rotate(var(--giro, 0deg)); }
+  50% { transform: translateY(-10px) rotate(var(--giro, 0deg)); }
+}
+
+@keyframes pulsar {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.18); opacity: 0.85; }
+}
+
+@keyframes surgir {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.anim-flutuar { animation: flutuar 6s ease-in-out infinite; }
+.anim-pulsar { animation: pulsar 1.6s ease-in-out infinite; }
+.anim-surgir { animation: surgir 0.5s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .anim-flutuar,
+  .anim-pulsar,
+  .anim-surgir {
+    animation: none !important;
+  }
 }

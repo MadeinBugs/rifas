@@ -33,20 +33,21 @@ export default async function ComprarPage({
   }
 
   return (
-    <main className="mx-auto flex min-h-full w-full max-w-md flex-1 flex-col justify-center gap-6 px-6 py-16">
+    <main className="mx-auto flex min-h-full w-full max-w-md flex-1 flex-col justify-center gap-6 px-5 py-12 sm:px-6">
       {jaPago ? (
-        <div className="flex flex-col items-center gap-4 text-center">
+        <div className="cartao anim-surgir flex flex-col items-center gap-4 px-6 py-9 text-center">
           <span className="text-5xl" role="img" aria-hidden>
-            ✅
+            💛
           </span>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Número {n} já foi pago
+          <h1 className="font-[family-name:var(--font-baloo)] text-2xl font-bold text-mauve">
+            O número {n} já tem dono
           </h1>
-          <p className="max-w-sm text-zinc-600 dark:text-zinc-400">
-            Este número já tem dono. Escolha outro na grade para participar!
+          <p className="max-w-sm text-ink/85">
+            Esse já está garantido por alguém. Escolha outro na grade e venha
+            ajudar o Suspiro também! 🐾
           </p>
-          <Link href="/" className="botao-voltar">
-            ← Escolher outro número
+          <Link href="/" className="botao-primario mt-1">
+            Escolher outro número
           </Link>
         </div>
       ) : (

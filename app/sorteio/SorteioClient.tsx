@@ -1,8 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import confetti from "canvas-confetti";
-import { realizarSorteio, resetarSorteio, type ResultadoSorteio } from "./actions";
+import { dispararConfete } from "@/lib/efeitos";
+import {
+  realizarSorteio,
+  resetarSorteio,
+  type ResultadoSorteio,
+} from "./actions";
 
 interface Props {
   resultadoInicial: ResultadoSorteio | null;
@@ -11,10 +15,14 @@ interface Props {
 export default function SorteioClient({ resultadoInicial }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [resultado, setResultado] = useState<ResultadoSorteio | null>(resultadoInicial);
+  const [resultado, setResultado] = useState<ResultadoSorteio | null>(
+    resultadoInicial,
+  );
   const [spinning, setSpinning] = useState(false);
   const [displayNumber, setDisplayNumber] = useState<string>(
-    resultadoInicial ? resultadoInicial.numero.toString().padStart(3, "0") : "000",
+    resultadoInicial
+      ? resultadoInicial.numero.toString().padStart(3, "0")
+      : "000",
   );
 
   const iniciarSorteio = async () => {
@@ -24,7 +32,11 @@ export default function SorteioClient({ resultadoInicial }: Props) {
 
     // Efeito visual de suspense enquanto a action roda no servidor
     const interval = setInterval(() => {
-      setDisplayNumber(Math.floor(Math.random() * 500 + 1).toString().padStart(3, "0"));
+      setDisplayNumber(
+        Math.floor(Math.random() * 500 + 1)
+          .toString()
+          .padStart(3, "0"),
+      );
     }, 50);
 
     const res = await realizarSorteio();
@@ -45,12 +57,7 @@ export default function SorteioClient({ resultadoInicial }: Props) {
 
       if (!res.jaSorteado) {
         // Confete apenas quando o sorteio acontece de verdade
-        confetti({
-          particleCount: 150,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ["#3b82f6", "#10b981", "#fbbf24", "#f59e0b", "#ef4444"],
-        });
+        dispararConfete();
       }
     }
   };
@@ -80,23 +87,29 @@ export default function SorteioClient({ resultadoInicial }: Props) {
   const jaSorteado = resultado !== null && !spinning;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8">
-      <div className="bg-white p-12 rounded-3xl shadow-xl border w-full max-w-lg">
-        <h2 className="text-2xl font-bold text-gray-700 mb-8 border-b pb-4">Roleta do Sorteio</h2>
+    <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-8 text-center">
+      <div className="cartao w-full max-w-lg p-10">
+        <h2 className="mb-8 border-b border-rose-deep/15 pb-4 font-[family-name:var(--font-baloo)] text-2xl font-bold text-mauve">
+          Roleta da Sorte 🍀
+        </h2>
 
-        <div className="text-8xl font-black text-blue-600 font-mono tracking-widest mb-8 py-8 bg-gray-50 rounded-2xl border-2 border-gray-100 shadow-inner">
+        <div className="mb-8 rounded-2xl border-2 border-sage/30 bg-sage-soft py-8 font-[family-name:var(--font-baloo)] text-8xl font-bold tracking-widest text-sage-deep shadow-inner">
           {displayNumber}
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded mb-6 font-medium">{error}</div>
+          <div className="mb-6 rounded-xl border border-rose/40 bg-blush/15 p-4 font-medium text-rose-deep">
+            {error}
+          </div>
         )}
 
         {jaSorteado && resultado && (
-          <div className="bg-green-50 text-green-800 p-6 rounded-xl border border-green-200 mb-8">
-            <p className="text-lg">Parabéns ao ganhador!</p>
-            <p className="text-3xl font-bold mt-2">{resultado.nome}</p>
-            <p className="text-xs text-green-600 mt-3">
+          <div className="mb-8 rounded-xl border border-sage/40 bg-sage-soft p-6 text-sage-deeper">
+            <p className="text-lg">Parabéns ao ganhador! 🎉</p>
+            <p className="mt-2 font-[family-name:var(--font-baloo)] text-3xl font-bold text-rose-deep">
+              {resultado.nome}
+            </p>
+            <p className="mt-3 text-xs text-mauve">
               Sorteado em{" "}
               {new Date(resultado.sorteadoEm).toLocaleString("pt-BR", {
                 dateStyle: "short",
@@ -109,20 +122,20 @@ export default function SorteioClient({ resultadoInicial }: Props) {
         <button
           onClick={iniciarSorteio}
           disabled={loading || spinning || jaSorteado}
-          className={`w-full py-4 text-xl font-bold text-white rounded-xl shadow-md transition transform hover:-translate-y-1 ${
-            loading || spinning || jaSorteado
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-          }`}
+          className="botao-primario w-full py-4 text-xl"
         >
-          {spinning ? "Sorteando..." : jaSorteado ? "Sorteio Realizado ✓" : "Realizar Sorteio"}
+          {spinning
+            ? "Sorteando…"
+            : jaSorteado
+              ? "Sorteio Realizado ✓"
+              : "Realizar Sorteio"}
         </button>
 
         {jaSorteado && (
           <button
             onClick={handleReset}
             disabled={loading}
-            className="mt-4 w-full py-2 text-sm text-gray-400 hover:text-red-500 transition disabled:opacity-50"
+            className="mt-4 w-full py-2 text-sm text-mauve/60 transition hover:text-rose-deep disabled:opacity-50"
           >
             Refazer sorteio (somente para testes)
           </button>
