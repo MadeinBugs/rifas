@@ -25,7 +25,7 @@ const ESTILO_BOTAO: Record<NumeroStatus, string> = {
 };
 
 export default function GridNumeros() {
-  const { statusPorNumero, contagem, aoVivo } = useNumeros();
+  const { statusPorNumero, contagem } = useNumeros();
 
   const numeros = useMemo(
     () => Array.from({ length: TOTAL_NUMEROS }, (_, i) => i + 1),
@@ -34,23 +34,9 @@ export default function GridNumeros() {
 
   return (
     <section className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-[family-name:var(--font-baloo)] text-2xl font-bold text-mauve">
-          Escolha o seu número da sorte 🍀
-        </h2>
-        <span
-          className="etiqueta flex items-center gap-1.5 px-3 py-1 text-xs text-mauve"
-          title={aoVivo ? "Atualizando em tempo real" : "Conectando…"}
-        >
-          <span
-            className={`inline-block h-2 w-2 rounded-full ${
-              aoVivo ? "anim-pulsar bg-sage" : "bg-mauve/40"
-            }`}
-            aria-hidden
-          />
-          {aoVivo ? "Ao vivo" : "Conectando…"}
-        </span>
-      </div>
+      <h2 className="font-[family-name:var(--font-baloo)] text-2xl font-bold text-mauve">
+        Escolha o seu número da sorte
+      </h2>
 
       {/* Legenda + contadores */}
       <div className="flex flex-wrap gap-4 text-sm">

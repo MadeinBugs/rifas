@@ -26,7 +26,7 @@ export default function HistoriaGato() {
           do começo até aqui
         </p>
         <h2 className="font-[family-name:var(--font-baloo)] text-3xl font-bold text-mauve sm:text-4xl">
-          A Jornada do {NOME_GATO} 🐾
+          A Jornada do {NOME_GATO}
         </h2>
       </div>
 
@@ -149,7 +149,7 @@ export default function HistoriaGato() {
       </details>
 
       {/* Convite final */}
-      <div className="cartao flex flex-col items-center gap-4 px-6 py-9 text-center">
+      <div className="flex flex-col items-center gap-4 py-2 text-center">
         <p className="max-w-xl text-lg leading-relaxed text-ink/85">
           Cada número escolhido é um pedacinho de esperança no tratamento do{" "}
           {NOME_GATO}. Faça parte da história do {NOME_GATO}.

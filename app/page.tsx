@@ -12,6 +12,8 @@ import {
   formatBRL,
   type NumeroRow,
 } from "@/lib/rifa";
+import { CreditCard, Gift, Ticket } from "@phosphor-icons/react/dist/ssr";
+import type { Icon } from "@phosphor-icons/react";
 
 export const dynamic = "force-dynamic";
 
@@ -133,7 +135,7 @@ function TituloOnda() {
   return (
     <h1
       aria-label={titulo}
-      className="font-[family-name:var(--font-baloo)] text-5xl font-bold leading-none text-mauve sm:text-6xl"
+      className="font-[family-name:var(--font-baloo)] text-5xl font-bold leading-none text-sage-deep sm:text-6xl"
     >
       <span aria-hidden="true">
         {titulo.split("").map((ch, i) => (
@@ -155,29 +157,49 @@ function Chips() {
   return (
     <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       <Chip
-        emoji="🎟️"
+        Icone={Ticket}
+        fundo="bg-peach/30"
+        cor="text-rose-deep"
         titulo={`${TOTAL_NUMEROS} números`}
         texto={`${formatBRL(PRECO_POR_NUMERO)} cada`}
       />
-      <Chip emoji="🎁" titulo="Prêmio" texto={PREMIO} />
-      <Chip emoji="💳" titulo="Pagamento" texto="Pix via Mercado Pago" />
+      <Chip
+        Icone={Gift}
+        fundo="bg-peach/30"
+        cor="text-rose-deep"
+        titulo="Prêmio"
+        texto={PREMIO}
+      />
+      <Chip
+        Icone={CreditCard}
+        fundo="bg-peach/30"
+        cor="text-rose-deep"
+        titulo="Pagamento"
+        texto="Pix via Mercado Pago"
+      />
     </section>
   );
 }
 
 function Chip({
-  emoji,
+  Icone,
+  fundo,
+  cor,
   titulo,
   texto,
 }: {
-  emoji: string;
+  Icone: Icon;
+  fundo: string;
+  cor: string;
   titulo: string;
   texto: string;
 }) {
   return (
-    <div className="etiqueta flex flex-col items-center gap-0.5 px-4 py-4 text-center">
-      <span className="text-2xl" aria-hidden>
-        {emoji}
+    <div className="etiqueta flex flex-col items-center gap-1.5 px-4 py-4 text-center">
+      <span
+        className={`flex h-11 w-11 items-center justify-center rounded-full ${fundo} ${cor}`}
+      >
+        <Icone weight="duotone" size={24} aria-hidden />
       </span>
       <p className="font-[family-name:var(--font-quicksand)] text-sm font-semibold text-rose-deep">
         {titulo}
