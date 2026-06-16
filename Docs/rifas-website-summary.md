@@ -238,14 +238,11 @@ NEXT_PUBLIC_BASE_URL=https://...     # pra montar a URL do webhook
 10. `/api/webhook` (validação + marca pago)
 11. Configurar URL do webhook no painel MP
 
-**Fase 4 — Admin**
-12. Painel `/admin` protegido (cookie httpOnly + senha em env), lendo `compradores` via service role: total arrecadado, lista de compradores, botão de sortear.
-    *(Expiração já está coberta pelo `pg_cron` + lazy expire — sem cron na Vercel.)*
-
-**Fase 5 — Sorteio & Polish**
-14. Página `/sorteio` com confetes (lib `canvas-confetti`)
-15. Sorteio random entre `status='pago'`
-16. Testes com pagamentos reais de baixo valor
+**Fase 4 e Fase 5 — Admin e Sorteio**
+12. ✅ Painel `/admin` protegido (cookie httpOnly + senha em env), lendo `compradores` via service role.
+13. ✅ Página `/sorteio` com confetes (lib `canvas-confetti`) 
+14. ✅ Sorteio random entre `status='pago'`
+15. Testes com pagamentos reais de baixo valor (se precisar testar Pix real no ambiente de vocês)
 
 ---
 
