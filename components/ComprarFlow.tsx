@@ -134,8 +134,12 @@ export default function ComprarFlow({ numero }: Props) {
         emoji="💖"
         titulo="Pagamento confirmado!"
         texto={`O número ${numero} é seu. Obrigado de coração por nos ajudar nessa luta 💕`}
+        corTitulo="text-rose-deep"
       >
         <BarraComemoracao />
+        <p className="self-end text-right font-[family-name:var(--font-caveat)] text-base italic text-mauve/55">
+          — Bela e Andress, pais do Suspiro
+        </p>
         <Link href="/" className="botao-primario mt-1">
           Voltar para a grade
         </Link>
@@ -338,18 +342,20 @@ function Estado({
   titulo,
   texto,
   children,
+  corTitulo = "text-mauve",
 }: {
   emoji: string;
   titulo: string;
   texto: string;
   children?: React.ReactNode;
+  corTitulo?: string;
 }) {
   return (
     <div className="cartao anim-surgir flex flex-col items-center gap-4 px-6 py-9 text-center">
       <span className="text-5xl" role="img" aria-hidden>
         {emoji}
       </span>
-      <h1 className="font-[family-name:var(--font-baloo)] text-2xl font-bold text-mauve">
+      <h1 className={`font-[family-name:var(--font-baloo)] text-2xl font-bold ${corTitulo}`}>
         {titulo}
       </h1>
       <p className="max-w-sm text-ink/85">{texto}</p>

@@ -155,7 +155,7 @@ export default function HistoriaGato() {
           {NOME_GATO}. Faça parte da história do {NOME_GATO}.
         </p>
         <Link href="#numeros" className="botao-primario text-base">
-          Quero ajudar o {NOME_GATO} 🐾
+          Quero ajudar!
         </Link>
       </div>
     </section>

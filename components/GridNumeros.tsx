@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import type { CSSProperties } from "react";
 import { useNumeros } from "@/components/NumerosProvider";
 import { tocarPop } from "@/lib/som";
 import {
@@ -21,7 +22,7 @@ const ESTILO_BOTAO: Record<NumeroStatus, string> = {
     "border-sage/50 bg-sage-soft text-sage-deeper hover:-translate-y-0.5 hover:rotate-2 hover:border-sage hover:shadow-[0_6px_14px_-8px_rgba(111,133,89,0.6)]",
   reservado:
     "border-blush/60 bg-peach/30 text-rose-deep cursor-not-allowed",
-  pago: "border-mauve/20 bg-mauve/10 text-mauve/50 line-through cursor-not-allowed",
+  pago: "border-mauve/20 bg-mauve/10 text-mauve/50 cursor-not-allowed",
 };
 
 export default function GridNumeros() {
@@ -43,10 +44,10 @@ export default function GridNumeros() {
         <Legenda cor="bg-sage" rotulo="Livres" valor={contagem.livres} />
         <Legenda
           cor="bg-blush"
-          rotulo="Reservados"
+          rotulo="Aguardando"
           valor={contagem.reservados}
         />
-        <Legenda cor="bg-mauve/40" rotulo="Pagos" valor={contagem.pagos} />
+        <Legenda cor="bg-mauve/40" rotulo="Reservados" valor={contagem.pagos} />
       </div>
 
       {/* Grade de números */}
@@ -76,23 +77,32 @@ export default function GridNumeros() {
             );
           }
 
+          if (status === "pago") {
+            return (
+              <button
+                key={n}
+                type="button"
+                disabled
+                className={classes}
+                aria-label={`Número ${n} — pago`}
+              >
+                <Pata cor="#6d6875" giro={-15} opacidade={0.3} />
+                {n}
+              </button>
+            );
+          }
+
+          // reservado
           return (
             <button
               key={n}
               type="button"
               disabled
               className={classes}
-              aria-label={`Número ${n} — ${status}`}
+              aria-label={`Número ${n} — reservado`}
             >
+              <Pata cor="#e5989b" giro={20} opacidade={0.5} />
               {n}
-              {status === "pago" && (
-                <span
-                  className="pointer-events-none absolute -right-1 -top-1 text-xs"
-                  aria-hidden
-                >
-                  🐾
-                </span>
-              )}
             </button>
           );
         })}
@@ -116,5 +126,50 @@ function Legenda({
       {rotulo}
       <strong className="font-bold text-ink">{valor}</strong>
     </span>
+  );
+}
+
+/** Máscara da pata — colorida via CSS mask-image sobre fundo de cor sólida. */
+const PAW_MASK: CSSProperties = {
+  maskImage: "url('/paw.png')",
+  WebkitMaskImage: "url('/paw.png')",
+  maskSize: "80%",
+  WebkitMaskSize: "80%",
+  maskRepeat: "no-repeat",
+  WebkitMaskRepeat: "no-repeat",
+  maskPosition: "center",
+  WebkitMaskPosition: "center",
+};
+
+function Pata({
+  cor,
+  giro,
+  opacidade,
+}: {
+  cor: string;
+  giro: number;
+  opacidade: number;
+}) {
+  return (
+    <span
+      className="pointer-events-none absolute inset-0 rounded-xl"
+      style={{
+        ...PAW_MASK,
+        backgroundColor: cor,
+        opacity: opacidade,
+        transform: `rotate(${giro}deg)`,
+      }}
+      aria-hidden
+    />
+  );
+}
+
+/** Risco diagonal para números pagos. */
+function TacheaDiagonal() {
+  return (
+    <span
+      className="pointer-events-none absolute left-1/2 top-1/2 h-px w-[130%] -translate-x-1/2 -translate-y-1/2 -rotate-[30deg] bg-mauve/50"
+      aria-hidden
+    />
   );
 }

@@ -62,7 +62,7 @@ export default function BarraProgresso({
       </div>
 
       <div className="flex items-center justify-between text-xs text-mauve/80">
-        <span>{progresso}% da meta 🐾</span>
+        <span>{progresso}% da meta</span>
         <span>Meta: {formatBRL(META_ARRECADACAO)}</span>
       </div>
     </div>
