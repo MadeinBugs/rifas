@@ -206,7 +206,7 @@ function Chips() {
         fundo="bg-peach/30"
         cor="text-rose-deep"
         titulo="Pagamento"
-        texto="Pix via Mercado Pago"
+        texto="Pix de 10"
       />
     </section>
   );
