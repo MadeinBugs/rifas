@@ -58,9 +58,9 @@ export async function criarPixParaNumero(args: {
 }): Promise<PixCriado> {
   const { numero, nome, email, idempotencyKey } = args;
   const valor = PRECO_POR_NUMERO.toFixed(2); // "10.00"
-  const expira = new Date(
-    Date.now() + RESERVA_MINUTOS * 60 * 1000,
-  ).toISOString();
+  // A API de Orders espera uma DURAÇÃO ISO 8601 (ex.: "PT15M"),
+  // não um datetime. (O campo date_of_expiration não é aceito aqui.)
+  const expiracao = `PT${RESERVA_MINUTOS}M`;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "");
 
   const order = getOrderClient();
@@ -83,7 +83,7 @@ export async function criarPixParaNumero(args: {
               id: "pix",
               type: "bank_transfer",
             },
-            date_of_expiration: expira,
+            expiration_time: expiracao,
           },
         ],
       },
