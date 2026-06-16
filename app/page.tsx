@@ -90,8 +90,38 @@ export default async function Home() {
         </>
       )}
 
+      <FamiliaGatos />
+
       <Rodape />
     </main>
+  );
+}
+
+/** A família de seis gatos — foto coletiva e apresentação. */
+function FamiliaGatos() {
+  return (
+    <section className="flex flex-col gap-6">
+      <div className="text-center">
+        <h2 className="font-[family-name:var(--font-baloo)] text-3xl font-bold text-mauve sm:text-4xl">
+          A Família
+        </h2>
+      </div>
+
+      <figure className="polaroid w-full rotate-[0.4deg]">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[0.35rem]">
+          <Image
+            src="/photos/familia/FamiliaGatos.jpeg"
+            alt="Os seis gatos da família reunidos no sofá e no tapete: Caju, Bambu, Mirtilo, Coco, Amora e Suspiro"
+            fill
+            sizes="(max-width: 640px) 90vw, 48rem"
+            className="object-cover"
+          />
+        </div>
+        <figcaption className="pt-2 text-center font-[family-name:var(--font-caveat)] text-base text-mauve/80">
+          Caju, Bambu, Mirtilo, Coco, Amora e Suspiro
+        </figcaption>
+      </figure>
+    </section>
   );
 }
 
