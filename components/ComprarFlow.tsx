@@ -174,9 +174,6 @@ export default function ComprarFlow({ numero }: Props) {
   return (
     <div className="cartao flex flex-col gap-6 px-6 py-8">
       <div className="text-center">
-        <span className="text-4xl" aria-hidden>
-          🎟️
-        </span>
         <h1 className="mt-1 font-[family-name:var(--font-baloo)] text-2xl font-bold text-mauve">
           Reservar o número {numero}
         </h1>
@@ -229,7 +226,7 @@ export default function ComprarFlow({ numero }: Props) {
       </form>
 
       <p className="text-center text-xs text-mauve/70">
-        Seus dados são usados apenas para falar com você sobre esta ação.
+        Seus dados são usados apenas para entrar em contato sobre esta ação.
       </p>
 
       <Link href="/" className="botao-voltar text-center">
