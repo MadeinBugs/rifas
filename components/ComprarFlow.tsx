@@ -137,7 +137,7 @@ export default function ComprarFlow({ numero }: Props) {
         corTitulo="text-rose-deep"
       >
         <BarraComemoracao />
-        <p className="self-end text-right font-[family-name:var(--font-caveat)] text-base italic text-mauve/55">
+        <p className="self-end text-right text-base italic text-rose-deep/55">
           — Bela e Andress, pais do Suspiro
         </p>
         <Link href="/" className="botao-primario mt-1">
