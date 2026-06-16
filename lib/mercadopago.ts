@@ -22,6 +22,33 @@ function getOrderClient(): Order {
 }
 
 /**
+ * Monta a URL do webhook a partir de NEXT_PUBLIC_BASE_URL, de forma robusta:
+ * - garante o esquema https:// (a env na Vercel pode vir sem protocolo);
+ * - valida que é uma URL real (o MP recusa URIs inválidas);
+ * - omite para localhost (o MP não aceita; em dev o webhook do painel cobre).
+ * Retorna null se não for possível montar uma URL https válida — nesse caso a
+ * order é criada sem callback_url e o webhook configurado no painel do MP cobre.
+ */
+export function getCallbackUrl(): string | null {
+  const raw = process.env.NEXT_PUBLIC_BASE_URL?.trim();
+  if (!raw) return null;
+  let base = raw.replace(/\/+$/, "");
+  if (!/^https?:\/\//i.test(base)) {
+    base = `https://${base}`; // Vercel env costuma vir sem protocolo.
+  }
+  try {
+    const u = new URL(`${base}/api/webhook`);
+    if (u.protocol !== "https:") return null; // MP exige https
+    if (u.hostname === "localhost" || u.hostname.endsWith(".localhost")) {
+      return null;
+    }
+    return u.toString();
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Extrai detalhes seguros de um erro do SDK do Mercado Pago.
  * O erro pode vir como { message, status, code } OU como um corpo de API
  * aninhado { errors: [...] } / { cause: [...] }. Capturamos ambos.
@@ -92,7 +119,7 @@ export async function criarPixParaNumero(args: {
   // A API de Orders espera uma DURAÇÃO ISO 8601 (ex.: "PT15M"),
   // não um datetime. (O campo date_of_expiration não é aceito aqui.)
   const expiracao = `PT${RESERVA_MINUTOS}M`;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "");
+  const callbackUrl = getCallbackUrl();
 
   const order = getOrderClient();
   const resposta = await order.create({
@@ -118,8 +145,8 @@ export async function criarPixParaNumero(args: {
           },
         ],
       },
-      ...(baseUrl
-        ? { config: { online: { callback_url: `${baseUrl}/api/webhook` } } }
+      ...(callbackUrl
+        ? { config: { online: { callback_url: callbackUrl } } }
         : {}),
     },
     requestOptions: { idempotencyKey },
