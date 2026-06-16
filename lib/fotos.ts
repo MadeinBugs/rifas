@@ -20,19 +20,22 @@ export interface Ato {
   id: "resgate" | "saudavel" | "tratamento";
   rotulo: string; // "Ato 1", "Ato 2"...
   titulo: string;
-  texto: string;
+  /** Um ou mais parágrafos de texto do ato. */
+  paragrafos: string[];
   fotos: Foto[];
 }
 
 export const JORNADA: Ato[] = [
   {
     id: "resgate",
-    rotulo: "Ato 1",
+    rotulo: "Suspiro chega machucado",
     titulo: "O Resgate",
-    texto:
-      "O Suspiro foi encontrado sozinho na rua, fraquinho e assustado. " +
-      "Mesmo sem forças, ele ainda confiou na gente — e foi aí que essa " +
-      "história de amor começou.",
+    paragrafos: [
+      "O Suspiro foi encontrado sozinho na rua a três anos atrás, " +
+        "extremamente fragilizado e machucado, com uma parte do seu peito " +
+        "exposto a feridas e insetos. O veterinário disse que ele não ia " +
+        "resistir e que deveríamos sacrificar.",
+    ],
     fotos: [
       {
         src: "/photos/resgate/retrato-1.jpeg",
@@ -46,19 +49,19 @@ export const JORNADA: Ato[] = [
   },
   {
     id: "saudavel",
-    rotulo: "Ato 2",
+    rotulo: "Suspiro forte e saudável",
     titulo: "Dias Felizes",
-    texto:
-      "Com cuidado, comida e muito carinho, o Suspiro floresceu. Virou aquele " +
-      "gato manhoso que ama um colo, um cobertor quentinho e um soninho no fim " +
-      "da tarde. Foram os melhores dias.",
+    paragrafos: [
+      "Com cuidado, comida (muita comida!) e tratamento, o Suspiro sobreviveu. " +
+        "Ficou forte e saudável, e um gato muito amoroso e brincalhão.",
+    ],
     fotos: [
       {
         src: "/photos/saudavel/paisagem-1.jpeg",
         largura: 1280,
         altura: 576,
         orientacao: "paisagem",
-        legenda: "Soninho no colo 🐾",
+        legenda: "Soninho enquanto a gente joga videogame",
         alt: "Suspiro dormindo tranquilo, aninhado em uma mão.",
       },
       {
@@ -74,7 +77,7 @@ export const JORNADA: Ato[] = [
         largura: 720,
         altura: 1600,
         orientacao: "retrato",
-        legenda: "Meu lugar favorito é o colo",
+        legenda: "Pose de galã",
         alt: "Suspiro confortável no colo de alguém.",
       },
       {
@@ -82,26 +85,30 @@ export const JORNADA: Ato[] = [
         largura: 576,
         altura: 1280,
         orientacao: "retrato",
-        legenda: "Todo charmoso 💛",
+        legenda: "💛",
         alt: "Suspiro saudável com peitoral floral, no sofá.",
       },
     ],
   },
   {
     id: "tratamento",
-    rotulo: "Ato 3",
-    titulo: "A Luta de Agora",
-    texto:
-      "Há pouco tempo veio o diagnóstico: linfoma. O Suspiro é forte e está " +
-      "enfrentando o tratamento com a mesma coragem de sempre — mas a conta é " +
-      "pesada pra gente sozinho. É por isso que pedimos a sua ajuda.",
+    rotulo: "Suspiro doente",
+    titulo: "A Luta Até Agora",
+    paragrafos: [
+      "Mas aí, um belo dia, notamos a respiração dele ofegante. Levamos para o " +
+        "veterinário e ele foi diagnosticado com FelV e um Linfoma de " +
+        "mediastino, um tipo de câncer. O Suspiro é forte e está enfrentando o " +
+        "tratamento com a mesma coragem de sempre, mas a conta está sendo " +
+        "bastante pesada para a gente enfrentar sozinho.",
+      "É por isso que criamos esse site e essa rifa.",
+    ],
     fotos: [
       {
         src: "/photos/tratamento/retrato-1.jpeg",
         largura: 576,
         altura: 1280,
         orientacao: "retrato",
-        legenda: "Forte como sempre",
+        legenda: "Suspiro magrinho :(",
         alt: "Suspiro magrinho, com curativos no peito após procedimento.",
       },
       {
@@ -109,7 +116,7 @@ export const JORNADA: Ato[] = [
         largura: 576,
         altura: 1280,
         orientacao: "retrato",
-        legenda: "Cada dia, um pouquinho mais",
+        legenda: "Cada dia uma nova luta",
         alt: "Suspiro no colo, mais fragilzinho, durante o tratamento.",
       },
     ],

@@ -97,12 +97,7 @@ export default async function Home() {
 function Capa() {
   return (
     <section className="flex flex-col items-center gap-5 text-center">
-      <p className="font-[family-name:var(--font-caveat)] text-2xl text-rose-deep">
-        uma ação entre amigos pelo
-      </p>
-      <h1 className="font-[family-name:var(--font-baloo)] text-5xl font-bold leading-none text-mauve sm:text-6xl">
-        Suspiro <span className="anim-flutuar inline-block">🐱</span>
-      </h1>
+      <TituloOnda />
 
       <figure className="polaroid mt-1 w-full max-w-lg -rotate-1">
         <div className="relative aspect-[16/9] overflow-hidden rounded-[0.35rem]">
@@ -120,12 +115,41 @@ function Capa() {
         </figcaption>
       </figure>
 
-      <p className="max-w-md text-base leading-relaxed text-ink/85">
-        O Suspiro está enfrentando um tratamento sério e a gente não quer fazer
-        isso sozinho. Escolha um número, ajude com carinho e ainda concorra a um
-        agrado. Cada número conta. 🍀
-      </p>
+      <div className="flex max-w-md flex-col gap-3 text-base leading-relaxed text-ink/85">
+        <p>
+          O Suspiro está enfrentando um problema sério de saúde: um linfoma. Ele
+          está fazendo quimioterapia, tomando vários remédios, e está lentamente
+          vencendo o tratamento, mas está difícil.
+        </p>
+        <p>
+          Escolha um número, nos ajude com carinho e concorra a um prêmio. Cada
+          número ajuda mais do que você imagina 💖
+        </p>
+      </div>
     </section>
+  );
+}
+
+/** Título "Salve o Suspiro" com cada letra subindo em cascata (onda sutil). */
+function TituloOnda() {
+  const titulo = "Salve o Suspiro";
+  return (
+    <h1
+      aria-label={titulo}
+      className="font-[family-name:var(--font-baloo)] text-5xl font-bold leading-none text-mauve sm:text-6xl"
+    >
+      <span aria-hidden="true">
+        {titulo.split("").map((ch, i) => (
+          <span
+            key={i}
+            className="onda-letra"
+            style={{ animationDelay: `${i * 0.07}s` }}
+          >
+            {ch === " " ? "\u00A0" : ch}
+          </span>
+        ))}
+      </span>
+    </h1>
   );
 }
 

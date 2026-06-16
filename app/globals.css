@@ -142,15 +142,40 @@ body {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* Onda do título: cada letra dá um pulinho sutil em cascata (esquerda → direita)
+   e depois descansa antes de repetir — feito uma waveform de luz suave. */
+@keyframes onda-letra {
+  0% { transform: translateY(0); }
+  8% { transform: translateY(-0.16em); }
+  16% { transform: translateY(0); }
+  100% { transform: translateY(0); }
+}
+
 .anim-flutuar { animation: flutuar 6s ease-in-out infinite; }
 .anim-pulsar { animation: pulsar 1.6s ease-in-out infinite; }
 .anim-surgir { animation: surgir 0.5s ease-out both; }
+
+.onda-letra {
+  display: inline-block;
+  animation: onda-letra 3.6s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Seta do dropdown de custos: gira ao abrir o <details>. */
+.seta-dropdown {
+  transition: transform 0.2s ease;
+  transform-origin: center;
+}
+details[open] .seta-dropdown {
+  transform: rotate(180deg);
+}
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .anim-flutuar,
   .anim-pulsar,
-  .anim-surgir {
+  .anim-surgir,
+  .onda-letra {
     animation: none !important;
   }
 }
