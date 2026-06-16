@@ -15,7 +15,7 @@ import {
 // Base comum + cor por status. Em repouso ficam retinhos; o "charme" vem só no
 // toque (squish) e no hover (leve inclinação/elevação).
 const BASE_BOTAO =
-  "relative flex h-11 items-center justify-center rounded-xl border text-sm font-semibold tabular-nums transition-transform duration-150 active:scale-95";
+  "relative flex h-11 w-11 items-center justify-center rounded-full border text-xs font-semibold tabular-nums transition-transform duration-150 active:scale-95";
 
 const ESTILO_BOTAO: Record<NumeroStatus, string> = {
   livre:
@@ -51,12 +51,7 @@ export default function GridNumeros() {
       </div>
 
       {/* Grade de números */}
-      <div
-        className="grid gap-1.5"
-        style={{
-          gridTemplateColumns: "repeat(auto-fill, minmax(2.75rem, 1fr))",
-        }}
-      >
+      <div className="grade-numeros">
         {numeros.map((n) => {
           const status = statusPorNumero[n] ?? "livre";
           const classes = `${BASE_BOTAO} ${ESTILO_BOTAO[status]}`;
@@ -152,7 +147,7 @@ function Pata({
 }) {
   return (
     <span
-      className="pointer-events-none absolute inset-0 rounded-xl"
+      className="pointer-events-none absolute inset-0 rounded-full"
       style={{
         ...PAW_MASK,
         backgroundColor: cor,

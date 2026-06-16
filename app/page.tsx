@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { createAnonClient } from "@/lib/supabase";
 import GridNumeros from "@/components/GridNumeros";
 import HistoriaGato from "@/components/HistoriaGato";
@@ -60,14 +61,16 @@ export default async function Home() {
 
       {resultado.ok ? (
         <NumerosProvider initial={resultado.rows}>
-          {/* Barra de progresso ao vivo, em destaque */}
+          <Chips />
+
+          <BotaoAjudar />
+
+          <HistoriaGato />
+
+          {/* Barra de progresso ao vivo, logo acima da grade */}
           <div className="cartao anim-surgir px-6 py-6">
             <BarraProgresso />
           </div>
-
-          <Chips />
-
-          <HistoriaGato />
 
           <section id="numeros" className="scroll-mt-6">
             <GridNumeros />
@@ -76,6 +79,8 @@ export default async function Home() {
       ) : (
         <>
           <Chips />
+
+          <BotaoAjudar />
 
           <HistoriaGato />
 
@@ -109,15 +114,14 @@ function FamiliaGatos() {
       </div>
 
       <figure className="polaroid w-full rotate-[0.4deg]">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-[0.35rem]">
-          <Image
-            src="/photos/familia/FamiliaGatos.jpeg"
-            alt="Os seis gatos da família reunidos no sofá e no tapete: Caju, Bambu, Mirtilo, Coco, Amora e Suspiro"
-            fill
-            sizes="(max-width: 640px) 90vw, 48rem"
-            className="object-cover"
-          />
-        </div>
+        <Image
+          src="/photos/familia/FamiliaGatos.jpeg"
+          alt="Os seis gatos da família reunidos no sofá e no tapete: Caju, Bambu, Mirtilo, Coco, Amora e Suspiro"
+          width={1484}
+          height={718}
+          sizes="(max-width: 640px) 90vw, 48rem"
+          className="h-auto w-full rounded-[0.35rem]"
+        />
         <figcaption className="pt-2 text-center font-[family-name:var(--font-caveat)] text-base text-mauve/80">
           Caju, Bambu, Mirtilo, Coco, Amora e Suspiro
         </figcaption>
@@ -145,7 +149,7 @@ function Capa() {
         </div>
       </figure>
 
-      <div className="flex max-w-md flex-col gap-3 text-base leading-relaxed text-ink/85">
+      <div className="flex max-w-xl flex-col gap-3 text-base leading-relaxed text-ink/85">
         <p>
           O Suspiro está enfrentando um problema sério de saúde: um linfoma. Ele
           está fazendo quimioterapia, tomando vários remédios, e está lentamente
@@ -236,6 +240,17 @@ function Chip({
         {titulo}
       </p>
       <p className="text-sm text-mauve">{texto}</p>
+    </div>
+  );
+}
+
+/** Botão de ação que leva direto à grade de números. */
+function BotaoAjudar() {
+  return (
+    <div className="flex justify-center">
+      <Link href="#numeros" className="botao-primario text-base">
+        Quero ajudar!
+      </Link>
     </div>
   );
 }

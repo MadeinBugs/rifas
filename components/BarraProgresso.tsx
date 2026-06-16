@@ -42,7 +42,7 @@ export default function BarraProgresso({
         <span className="font-[family-name:var(--font-quicksand)] text-sm font-semibold text-mauve">
           Já arrecadado
         </span>
-        <span className="font-[family-name:var(--font-baloo)] text-2xl font-bold text-sage-deep">
+        <span className="font-[family-name:var(--font-baloo)] text-lg font-bold text-sage-deep">
           {formatBRL(arrecadado)}
         </span>
       </div>

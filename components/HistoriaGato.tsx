@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { JORNADA } from "@/lib/fotos";
 import Galeria from "./Galeria";
 
@@ -149,14 +148,10 @@ export default function HistoriaGato() {
       </details>
 
       {/* Convite final */}
-      <div className="flex flex-col items-center gap-4 py-2 text-center">
+      <div className="flex flex-col items-center gap-1 py-1 text-center">
         <p className="max-w-xl text-lg leading-relaxed text-ink/85">
-          Cada número escolhido é um pedacinho de esperança no tratamento do{" "}
-          {NOME_GATO}. Faça parte da história do {NOME_GATO}.
+          Cada número escolhido é um pedacinho de esperança no tratamento do {NOME_GATO}.
         </p>
-        <Link href="#numeros" className="botao-primario text-base">
-          Quero ajudar!
-        </Link>
       </div>
     </section>
   );
