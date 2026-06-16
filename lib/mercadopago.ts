@@ -21,6 +21,30 @@ function getOrderClient(): Order {
   return new Order(config);
 }
 
+/**
+ * Extrai detalhes seguros de um erro do SDK do Mercado Pago.
+ * O objeto de erro do SDK tem o formato { message, status, code, ... }.
+ * Nenhum desses campos contém o access token, então é seguro logar/retornar.
+ */
+export function extrairErroMP(e: unknown): {
+  message: string;
+  status?: number;
+  code?: string;
+} {
+  if (e && typeof e === "object") {
+    const o = e as Record<string, unknown>;
+    return {
+      message:
+        typeof o.message === "string"
+          ? o.message
+          : "Erro desconhecido do Mercado Pago.",
+      status: typeof o.status === "number" ? o.status : undefined,
+      code: typeof o.code === "string" ? o.code : undefined,
+    };
+  }
+  return { message: e instanceof Error ? e.message : String(e) };
+}
+
 /** Monta o external_reference padronizado a partir do número. */
 export function refFromNumero(numero: number): string {
   return `rifa-${numero}`;

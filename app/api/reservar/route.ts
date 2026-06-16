@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase-admin";
-import { criarPixParaNumero } from "@/lib/mercadopago";
+import { criarPixParaNumero, extrairErroMP } from "@/lib/mercadopago";
 import { TOTAL_NUMEROS, RESERVA_MINUTOS } from "@/lib/rifa";
 
 export const dynamic = "force-dynamic";
@@ -136,11 +136,22 @@ export async function POST(request: Request) {
       expiraEmMinutos: RESERVA_MINUTOS,
     });
   } catch (e) {
-    console.error("[reservar] erro ao criar Pix no Mercado Pago:", e);
+    const detalhe = extrairErroMP(e);
+    console.error(
+      "[reservar] erro ao criar Pix no Mercado Pago:",
+      detalhe,
+      e,
+    );
     // Rollback: libera o número para não ficar preso.
     await liberar(supabase, numero);
     return NextResponse.json(
-      { erro: "Não foi possível gerar o Pix. Tente novamente." },
+      {
+        erro: "Não foi possível gerar o Pix. Tente novamente.",
+        // Diagnóstico seguro: a mensagem/status/código do MP não contêm o token.
+        detalhe: detalhe.message,
+        mpStatus: detalhe.status,
+        mpCode: detalhe.code,
+      },
       { status: 502 },
     );
   }
