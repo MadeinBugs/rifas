@@ -131,9 +131,9 @@ export default function ComprarFlow({ numero }: Props) {
   if (etapa === "pago") {
     return (
       <Estado
-        emoji="💛"
+        emoji="💖"
         titulo="Pagamento confirmado!"
-        texto={`O número ${numero} é seu. De coração: obrigado por estar do lado do Suspiro nessa luta. 🐾`}
+        texto={`O número ${numero} é seu. Obrigado de coração por nos ajudar nessa luta 💕`}
       >
         <BarraComemoracao />
         <Link href="/" className="botao-primario mt-1">
@@ -164,10 +164,10 @@ export default function ComprarFlow({ numero }: Props) {
     return (
       <div className="cartao flex flex-col items-center gap-5 px-6 py-8">
         <div className="text-center">
-          <h1 className="font-[family-name:var(--font-baloo)] text-2xl font-bold text-mauve">
+          <h1 className="font-[family-name:var(--font-baloo)] text-2xl font-bold text-rose-deep">
             Pague {formatBRL(PRECO_POR_NUMERO)} no Pix
           </h1>
-          <p className="mt-1 text-sm text-mauve/80">
+          <p className="mt-1 text-sm font-bold text-mauve/80">
             Número {numero} · escaneie o QR Code no app do seu banco
           </p>
         </div>
