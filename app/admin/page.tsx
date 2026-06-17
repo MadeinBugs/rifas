@@ -1,7 +1,11 @@
 import { requireAuth } from "@/lib/auth";
 import { createServiceClient } from "@/lib/supabase-admin";
 import { PRECO_POR_NUMERO } from "@/lib/rifa";
-import { logoutAction } from "./actions";
+import {
+  logoutAction,
+  marcarPedidoPagoAction,
+  desmarcarPedidoPagoAction,
+} from "./actions";
 
 interface CompradorJoin {
   numero: number;
@@ -20,6 +24,22 @@ interface RawNumeroRow {
   compradores:
     | { nome: string | null; whatsapp: string | null; email: string | null; pix_id: string | null; pago_em: string | null }
     | { nome: string | null; whatsapp: string | null; email: string | null; pix_id: string | null; pago_em: string | null }[]
+    | null;
+}
+
+/** Linha bruta de `pedidos` com o comprador embutido (1 por número). */
+interface RawPedidoRow {
+  id: string;
+  status: string;
+  quantidade: number;
+  total_centavos: number;
+  numeros: number[];
+  reservado_em: string | null;
+  pago_em: string | null;
+  criado_em: string;
+  compradores:
+    | { nome: string | null; whatsapp: string | null }
+    | { nome: string | null; whatsapp: string | null }[]
     | null;
 }
 
@@ -64,6 +84,34 @@ export default async function AdminPage() {
     } as CompradorJoin;
   });
 
+  // ── Pedidos (para marcar/desmarcar pagamento manualmente) ──
+  const { data: pedidosRaw, error: errPedidos } = await supabase
+    .from("pedidos")
+    .select(
+      `id, status, quantidade, total_centavos, numeros, reservado_em, pago_em, criado_em,
+       compradores ( nome, whatsapp )`,
+    )
+    .order("criado_em", { ascending: false })
+    .limit(100);
+
+  if (errPedidos) {
+    console.error("[admin] falha ao buscar pedidos:", errPedidos.message);
+  }
+
+  const pedidos = ((pedidosRaw as RawPedidoRow[]) || []).map((p) => {
+    const c = Array.isArray(p.compradores) ? p.compradores[0] : p.compradores;
+    return {
+      id: p.id,
+      status: p.status,
+      quantidade: p.quantidade,
+      total: (p.total_centavos ?? 0) / 100,
+      numeros: Array.isArray(p.numeros) ? p.numeros : [],
+      criado_em: p.criado_em,
+      nome: c?.nome ?? null,
+      whatsapp: c?.whatsapp ?? null,
+    };
+  });
+
   // Estatísticas
   const livres = dados.filter(d => d.status === "livre").length;
   const reservados = dados.filter(d => d.status === "reservado").length;
@@ -98,6 +146,90 @@ export default async function AdminPage() {
           <CardEstatistica titulo="Números Pagos" valor={pagos} cor="text-green-600" bg="bg-green-50" />
           <CardEstatistica titulo="Reservados (Aguardando)" valor={reservados} cor="text-orange-600" bg="bg-orange-50" />
           <CardEstatistica titulo="Livre" valor={livres} cor="text-gray-600" bg="bg-gray-100" />
+        </div>
+
+        {/* Pedidos: marcar / desmarcar pagamento (testes de Pix + resgate manual) */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+          <div className="p-6 border-b border-gray-100">
+            <h2 className="text-xl font-bold text-gray-800">Pedidos</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Marque um pedido como pago para testar o fluxo de Pix (ou para
+              resgatar um pagamento que o webhook não confirmou). A aba do
+              checkout se atualiza sozinha em alguns segundos.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="p-4 font-semibold text-gray-600">Criado</th>
+                  <th className="p-4 font-semibold text-gray-600">Números</th>
+                  <th className="p-4 font-semibold text-gray-600">Total</th>
+                  <th className="p-4 font-semibold text-gray-600">Comprador</th>
+                  <th className="p-4 font-semibold text-gray-600">Status</th>
+                  <th className="p-4 font-semibold text-gray-600">Ação</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {pedidos.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="p-8 text-center text-gray-500">
+                      Nenhum pedido ainda.
+                    </td>
+                  </tr>
+                )}
+                {pedidos.map((p) => (
+                  <tr key={p.id} className="hover:bg-gray-50/50 align-top">
+                    <td className="p-4 text-sm text-gray-500 whitespace-nowrap">
+                      {new Date(p.criado_em).toLocaleString("pt-BR")}
+                    </td>
+                    <td className="p-4 font-mono text-sm text-gray-700">
+                      {p.numeros
+                        .map((n) => n.toString().padStart(3, "0"))
+                        .join(", ")}
+                      <span className="ml-1 text-gray-400">({p.quantidade})</span>
+                    </td>
+                    <td className="p-4 font-semibold text-gray-800 whitespace-nowrap">
+                      R$ {p.total.toFixed(2).replace(".", ",")}
+                    </td>
+                    <td className="p-4 text-gray-700">
+                      <div className="font-medium">{p.nome || "-"}</div>
+                      <div className="text-xs text-gray-400">{p.whatsapp || ""}</div>
+                    </td>
+                    <td className="p-4">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${corStatusPedido(p.status)}`}>
+                        {p.status.toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      {p.status === "pago" ? (
+                        <form action={desmarcarPedidoPagoAction}>
+                          <input type="hidden" name="pedidoId" value={p.id} />
+                          <button
+                            type="submit"
+                            className="text-sm font-semibold text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 px-3 py-1.5 rounded-lg transition whitespace-nowrap"
+                          >
+                            ↩ Desmarcar pago
+                          </button>
+                        </form>
+                      ) : (
+                        <form action={marcarPedidoPagoAction}>
+                          <input type="hidden" name="pedidoId" value={p.id} />
+                          <button
+                            type="submit"
+                            className="text-sm font-semibold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-lg transition shadow-sm whitespace-nowrap"
+                          >
+                            ✓ Marcar como pago
+                          </button>
+                        </form>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
@@ -167,4 +299,18 @@ function CardEstatistica({ titulo, valor, cor, bg }: { titulo: string, valor: st
       <p className={`text-3xl font-bold ${cor}`}>{valor}</p>
     </div>
   );
+}
+
+/** Cor do selo de status do pedido. */
+function corStatusPedido(status: string): string {
+  switch (status) {
+    case "pago":
+      return "bg-green-100 text-green-700";
+    case "aguardando":
+      return "bg-orange-100 text-orange-700";
+    case "pago_expirado":
+      return "bg-red-100 text-red-700";
+    default: // expirado
+      return "bg-gray-100 text-gray-600";
+  }
 }
