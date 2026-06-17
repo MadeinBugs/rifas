@@ -31,9 +31,25 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000",
+  ),
   title: "Ação Solidária pelo Suspiro 🐱",
   description:
     "Ação entre amigos para ajudar no tratamento do Suspiro. Escolha um número e participe — cada número é um abraço a mais nessa luta. 💛",
+  openGraph: {
+    title: "Salve o Suspiro",
+    description:
+      "Ação entre amigos para ajudar no tratamento do Suspiro. Escolha um número e participe — cada número é um abraço a mais nessa luta. 💛",
+    locale: "pt_BR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Salve o Suspiro",
+    description:
+      "Ação entre amigos para ajudar no tratamento do Suspiro. Escolha um número e participe — cada número é um abraço a mais nessa luta. 💛",
+  },
 };
 
 export default function RootLayout({
