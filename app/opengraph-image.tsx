@@ -8,12 +8,7 @@ export const contentType = "image/png";
 
 export default async function Image() {
   const [fontData, photoData] = await Promise.all([
-    readFile(
-      join(
-        process.cwd(),
-        "node_modules/@fontsource/baloo-2/files/baloo-2-latin-700-normal.woff",
-      ),
-    ),
+    readFile(join(process.cwd(), "assets/Baloo2-Bold.woff")),
     readFile(join(process.cwd(), "public/photos/saudavel/paisagem-1.jpeg")),
   ]);
 

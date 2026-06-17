@@ -30,17 +30,28 @@ const caveat = Caveat({
   weight: ["400", "600", "700"],
 });
 
+// URL base do site, usada para gerar URLs absolutas das imagens de preview
+// (og:image / twitter:image). Em produção na Vercel, usamos a URL de produção;
+// localmente, caímos no localhost.
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+  ? process.env.NEXT_PUBLIC_BASE_URL
+  : process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000",
-  ),
+  metadataBase: new URL(baseUrl),
   title: "Ação Solidária pelo Suspiro 🐱",
   description:
     "Ação entre amigos para ajudar no tratamento do Suspiro. Escolha um número e participe — cada número é um abraço a mais nessa luta. 💛",
   openGraph: {
     title: "Salve o Suspiro",
     description:
-      "Ação entre amigos para ajudar no tratamento do Suspiro. Escolha um número e participe — cada número é um abraço a mais nessa luta. 💛",
+      "Ajude no tratamento do Suspiro. Escolha um número e participe dessa ação entre amigos. 💛",
+    siteName: "Salve o Suspiro",
+    url: "/",
     locale: "pt_BR",
     type: "website",
   },
@@ -48,7 +59,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Salve o Suspiro",
     description:
-      "Ação entre amigos para ajudar no tratamento do Suspiro. Escolha um número e participe — cada número é um abraço a mais nessa luta. 💛",
+      "Ajude no tratamento do Suspiro. Escolha um número e participe dessa ação entre amigos. 💛",
   },
 };
 
