@@ -93,6 +93,18 @@ export function numeroFromRef(ref: string | undefined | null): number | null {
   return Number.isInteger(n) ? n : null;
 }
 
+/** Monta o external_reference de um PEDIDO (compra de vários números). */
+export function refFromPedido(pedidoId: string): string {
+  return `rifa-pedido-${pedidoId}`;
+}
+
+/** Extrai o id do pedido a partir do external_reference (ex.: "rifa-pedido-<uuid>"). */
+export function pedidoIdFromRef(ref: string | undefined | null): string | null {
+  if (!ref) return null;
+  const m = /^rifa-pedido-(.+)$/.exec(ref.trim());
+  return m ? m[1] : null;
+}
+
 export type PixCriado = {
   orderId: string;
   paymentId: string | null;
@@ -182,28 +194,113 @@ export async function criarPixParaNumero(args: {
   };
 }
 
-export type OrderConsulta = {
-  numero: number | null;
-  paid: boolean;
-  status: string | null;
-};
+/**
+ * Cria UMA order online com pagamento Pix para um PEDIDO de vários números.
+ * O valor é o total (quantidade × preço) e o cliente paga tudo num único QR Code.
+ * Mantém a rastreabilidade via external_reference = `rifa-pedido-<id>`.
+ *
+ * @param idempotencyKey chave estável por pedido (evita cobrança duplicada).
+ */
+export async function criarPixParaPedido(args: {
+  pedidoId: string;
+  nome: string;
+  email: string;
+  valorCentavos: number;
+  quantidade: number;
+  idempotencyKey: string;
+}): Promise<PixCriado> {
+  const { pedidoId, nome, email, valorCentavos, quantidade, idempotencyKey } =
+    args;
+  const valor = (valorCentavos / 100).toFixed(2); // ex.: "30.00"
+  const expiracao = `PT${RESERVA_MINUTOS}M`;
+  const callbackUrl = getCallbackUrl();
+
+  const order = getOrderClient();
+  const resposta = await order.create({
+    body: {
+      type: "online",
+      processing_mode: "automatic",
+      external_reference: refFromPedido(pedidoId),
+      total_amount: valor,
+      description:
+        quantidade === 1
+          ? "Ação Solidária pelo Gatinho — 1 número"
+          : `Ação Solidária pelo Gatinho — ${quantidade} números`,
+      payer: {
+        email,
+        first_name: nome,
+      },
+      transactions: {
+        payments: [
+          {
+            amount: valor,
+            payment_method: {
+              id: "pix",
+              type: "bank_transfer",
+            },
+            expiration_time: expiracao,
+          },
+        ],
+      },
+      ...(callbackUrl
+        ? { config: { online: { callback_url: callbackUrl } } }
+        : {}),
+    },
+    requestOptions: { idempotencyKey },
+  });
+
+  const pagamento = resposta.transactions?.payments?.[0];
+  const pm = pagamento?.payment_method;
+
+  if (!resposta.id) {
+    throw new Error("Mercado Pago não retornou o id da order.");
+  }
+
+  const qrCode = pm?.qr_code ?? null;
+  const qrCodeBase64 = pm?.qr_code_base64 ?? null;
+
+  if (!qrCode && !qrCodeBase64) {
+    console.error(
+      "[mercadopago] Order (pedido) sem QR Code no caminho esperado. Estrutura:",
+      JSON.stringify(pagamento ?? resposta, null, 2),
+    );
+  }
+
+  return {
+    orderId: resposta.id,
+    paymentId: pagamento?.id ?? null,
+    qrCode,
+    qrCodeBase64,
+    ticketUrl: pm?.ticket_url ?? null,
+    status: resposta.status ?? null,
+  };
+}
 
 /**
  * Consulta uma order no Mercado Pago e diz se está paga.
  * Paga = order.status 'processed' OU algum pagamento 'approved'.
+ * Identifica se a order é de um número avulso (legado) ou de um pedido.
  */
+export type OrderConsulta = {
+  numero: number | null;
+  pedidoId: string | null;
+  paid: boolean;
+  status: string | null;
+};
+
 export async function consultarOrder(orderId: string): Promise<OrderConsulta> {
   const order = getOrderClient();
   const resposta = await order.get({ id: orderId });
 
   const numero = numeroFromRef(resposta.external_reference);
+  const pedidoId = pedidoIdFromRef(resposta.external_reference);
   const orderStatus = resposta.status ?? null;
   const algumAprovado = (resposta.transactions?.payments ?? []).some(
     (p) => p.status === "approved",
   );
   const paid = orderStatus === "processed" || algumAprovado;
 
-  return { numero, paid, status: orderStatus };
+  return { numero, pedidoId, paid, status: orderStatus };
 }
 
 /**

@@ -7,6 +7,12 @@ export const TOTAL_NUMEROS = 500;
 export const PRECO_POR_NUMERO = 10; // R$
 export const PREMIO = "R$ 100 em iFood Card";
 
+/**
+ * Máximo de números que uma pessoa pode reservar em um único pedido.
+ * Trava anti-abuso por checkout (o captcha cuida dos bots).
+ */
+export const MAX_NUMEROS_POR_PEDIDO = 50;
+
 /** Minutos que um número fica reservado aguardando o pagamento do Pix. */
 export const RESERVA_MINUTOS = 15;
 

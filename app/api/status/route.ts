@@ -1,25 +1,29 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase-admin";
-import { confirmarPagamentoPorOrder } from "@/lib/pagamento";
-import { TOTAL_NUMEROS } from "@/lib/rifa";
+import { confirmarPagamentoPorPedido } from "@/lib/pagamento";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Consulta o status de um número (polling do cliente na página de compra).
- * Resposta: { status: 'livre' | 'reservado' | 'pago' }.
+ * Consulta o status de um PEDIDO (polling do cliente na página de apoio).
+ * Resposta: { status: 'aguardando' | 'pago' | 'expirado' }.
  *
  * Estratégia:
- * 1. Lê o status atual no banco (rápido; o webhook normalmente já marcou).
- * 2. Fallback: se ainda 'reservado' e houver order, confirma no Mercado Pago.
+ * 1. Lê o status atual do pedido (rápido; o webhook normalmente já marcou).
+ * 2. Fallback: se ainda 'aguardando' e houver order, confirma no Mercado Pago.
  *    Assim o cliente vê "pago" mesmo se o webhook atrasar.
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const numero = Number(searchParams.get("numero"));
+  const pedidoId = (searchParams.get("pedido") ?? "").trim();
 
-  if (!Number.isInteger(numero) || numero < 1 || numero > TOTAL_NUMEROS) {
-    return NextResponse.json({ erro: "Número inválido." }, { status: 400 });
+  // UUID simples (formato), evita consultas inúteis com lixo.
+  const uuidOk =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      pedidoId,
+    );
+  if (!uuidOk) {
+    return NextResponse.json({ erro: "Pedido inválido." }, { status: 400 });
   }
 
   let supabase: ReturnType<typeof createServiceClient>;
@@ -34,14 +38,14 @@ export async function GET(request: Request) {
   }
 
   const { data, error } = await supabase
-    .from("numeros")
-    .select("status")
-    .eq("numero", numero)
+    .from("pedidos")
+    .select("status, pix_id")
+    .eq("id", pedidoId)
     .single();
 
   if (error || !data) {
     return NextResponse.json(
-      { erro: "Número não encontrado." },
+      { erro: "Pedido não encontrado." },
       { status: 404 },
     );
   }
@@ -50,23 +54,15 @@ export async function GET(request: Request) {
     return NextResponse.json({ status: "pago" });
   }
 
-  // Fallback ativo: confirma no MP se ainda estiver reservado.
-  if (data.status === "reservado") {
-    const { data: comp } = await supabase
-      .from("compradores")
-      .select("pix_id")
-      .eq("numero", numero)
-      .single();
-
-    if (comp?.pix_id) {
-      try {
-        const r = await confirmarPagamentoPorOrder(comp.pix_id);
-        if (r.paid) {
-          return NextResponse.json({ status: "pago" });
-        }
-      } catch (e) {
-        console.error("[status] fallback MP falhou:", e);
+  // Fallback ativo: confirma no MP se ainda estiver aguardando.
+  if (data.status === "aguardando" && data.pix_id) {
+    try {
+      const r = await confirmarPagamentoPorPedido(data.pix_id);
+      if (r.paid) {
+        return NextResponse.json({ status: "pago" });
       }
+    } catch (e) {
+      console.error("[status] fallback MP falhou:", e);
     }
   }
 

@@ -2,16 +2,24 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import QRCodePix from "@/components/QRCodePix";
 import { PRECO_POR_NUMERO, formatBRL } from "@/lib/rifa";
 import { dispararCoracoes } from "@/lib/efeitos";
 import { tocarChime, tocarPop } from "@/lib/som";
 import IconePix from "@/components/IconePix";
 
-type Props = { numero: number };
+type Props = { numeros: number[] };
 
-type Pix = {
-  orderId: string;
+type Troca = { de: number; para: number };
+
+type Resultado = {
+  pedidoId: string;
+  numeros: number[];
+  substituidos: Troca[];
+  perdidos: number[];
+  quantidade: number;
+  total: number; // R$
   qrCode: string | null;
   qrCodeBase64: string | null;
   ticketUrl: string | null;
@@ -19,6 +27,8 @@ type Pix = {
 };
 
 type Etapa = "form" | "enviando" | "pix" | "pago" | "indisponivel";
+
+const SITEKEY = process.env.NEXT_PUBLIC_TURNSTILE_SITEKEY;
 
 /** Aplica a máscara (DDD) 9XXXX-XXXX ao digitar. */
 function mascaraTelefone(valor: string): string {
@@ -33,7 +43,8 @@ function validarTelefone(valor: string): string | null {
   const d = valor.replace(/\D/g, "");
   if (d.length === 0) return null;
   if (d.length < 11) return "Número incompleto — use o formato (DDD) 9XXXX-XXXX";
-  if (d[2] !== "9") return "Celulares brasileiros têm 9 como primeiro dígito após o DDD";
+  if (d[2] !== "9")
+    return "Celulares brasileiros têm 9 como primeiro dígito após o DDD";
   return null;
 }
 
@@ -44,7 +55,7 @@ function validarEmail(valor: string): string | null {
     : "E-mail inválido — verifique e tente novamente";
 }
 
-export default function ComprarFlow({ numero }: Props) {
+export default function ApoiarFlow({ numeros }: Props) {
   const [etapa, setEtapa] = useState<Etapa>("form");
   const [nome, setNome] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -52,8 +63,15 @@ export default function ComprarFlow({ numero }: Props) {
   const [erro, setErro] = useState<string | null>(null);
   const [tocadoWhatsapp, setTocadoWhatsapp] = useState(false);
   const [tocadoEmail, setTocadoEmail] = useState(false);
-  const [pix, setPix] = useState<Pix | null>(null);
+  const [resultado, setResultado] = useState<Resultado | null>(null);
   const [restante, setRestante] = useState<number>(0); // segundos
+  // Token preenchido automaticamente pelo widget Turnstile em background.
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+
+  const captchaRef = useRef<TurnstileInstance>(null);
+
+  const quantidade = numeros.length;
+  const totalPrevisto = quantidade * PRECO_POR_NUMERO;
 
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
@@ -62,15 +80,26 @@ export default function ComprarFlow({ numero }: Props) {
     if (validarTelefone(whatsapp) || validarEmail(email)) return;
     setErro(null);
     tocarPop();
+
+    // Anti-robô: o Turnstile já resolveu em background — só bloqueia se
+    // a sitekey está configurada e o token ainda não chegou.
+    if (SITEKEY && !captchaToken) {
+      setErro("Aguarde a verificação de segurança e tente de novo.");
+      return;
+    }
+
     setEtapa("enviando");
     try {
       const resp = await fetch("/api/reservar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ numero, nome, whatsapp, email }),
+        body: JSON.stringify({ numeros, nome, whatsapp, email, captchaToken }),
       });
       const dados = await resp.json();
       if (!resp.ok) {
+        // Rotaciona o token para que a próxima tentativa gere um novo.
+        captchaRef.current?.reset();
+        setCaptchaToken(null);
         if (resp.status === 409) {
           setEtapa("indisponivel");
           return;
@@ -79,10 +108,12 @@ export default function ComprarFlow({ numero }: Props) {
         setEtapa("form");
         return;
       }
-      setPix(dados as Pix);
+      setResultado(dados as Resultado);
       setRestante((dados.expiraEmMinutos ?? 15) * 60);
       setEtapa("pix");
     } catch {
+      captchaRef.current?.reset();
+      setCaptchaToken(null);
       setErro("Falha de conexão. Tente novamente.");
       setEtapa("form");
     }
@@ -96,10 +127,12 @@ export default function ComprarFlow({ numero }: Props) {
     return () => clearInterval(t);
   }, [etapa, restante]);
 
-  // Polling do status enquanto o Pix está ativo.
+  // Polling do status do pedido enquanto o Pix está ativo.
+  const pedidoId = resultado?.pedidoId;
   const checarStatus = useCallback(async () => {
+    if (!pedidoId) return;
     try {
-      const r = await fetch(`/api/status?numero=${numero}`, {
+      const r = await fetch(`/api/status?pedido=${pedidoId}`, {
         cache: "no-store",
       });
       const d = await r.json();
@@ -107,9 +140,8 @@ export default function ComprarFlow({ numero }: Props) {
     } catch {
       // ignora; tenta de novo no próximo tick
     }
-  }, [numero]);
+  }, [pedidoId]);
 
-  // Mantém a referência da função atualizada sem reiniciar o intervalo.
   const pollRef = useRef(checarStatus);
   useEffect(() => {
     pollRef.current = checarStatus;
@@ -128,14 +160,32 @@ export default function ComprarFlow({ numero }: Props) {
     tocarChime();
   }, [etapa]);
 
-  if (etapa === "pago") {
+  // Turnstile (Managed mode): resolve em background para a grande maioria.
+  // Só mostra desafio visual para tráfego identificado como suspeito.
+  const widgetCaptcha = SITEKEY ? (
+    <Turnstile
+      ref={captchaRef}
+      siteKey={SITEKEY}
+      options={{ appearance: "interaction-only", action: "reservar" }}
+      onSuccess={(token) => setCaptchaToken(token)}
+      onExpire={() => setCaptchaToken(null)}
+      onError={() => setCaptchaToken(null)}
+    />
+  ) : null;
+
+  if (etapa === "pago" && resultado) {
     return (
       <Estado
         emoji="💖"
         titulo="Pagamento confirmado!"
-        texto={`O número ${numero} é seu. Obrigado de coração por nos ajudar nessa luta 💕`}
+        texto={
+          resultado.quantidade === 1
+            ? "Seu número está garantido. Obrigado de coração por nos ajudar nessa luta 💕"
+            : `Seus ${resultado.quantidade} números estão garantidos. Obrigado de coração por nos ajudar nessa luta 💕`
+        }
         corTitulo="text-rose-deep"
       >
+        <Fichas numeros={resultado.numeros} />
         <BarraComemoracao />
         <p className="self-end text-right text-base italic text-rose-deep/55">
           ~ Bela e Andress, pais do Suspiro
@@ -151,17 +201,17 @@ export default function ComprarFlow({ numero }: Props) {
     return (
       <Estado
         emoji="😿"
-        titulo="Esse número voou!"
-        texto="Alguém escolheu este número agorinha. Mas tem vários outros esperando por você."
+        titulo="Os números voaram!"
+        texto="Os números escolhidos já foram reservados e não encontramos outros livres agora. Dá uma olhada na grade — logo abrem mais."
       >
-        <Link href="/" className="botao-primario mt-1">
-          Escolher outro número
+        <Link href="/#numeros" className="botao-primario mt-1">
+          Voltar para a grade
         </Link>
       </Estado>
     );
   }
 
-  if (etapa === "pix" && pix) {
+  if (etapa === "pix" && resultado) {
     const expirou = restante <= 0;
     const mm = String(Math.floor(restante / 60)).padStart(2, "0");
     const ss = String(restante % 60).padStart(2, "0");
@@ -169,17 +219,44 @@ export default function ComprarFlow({ numero }: Props) {
       <div className="cartao flex flex-col items-center gap-5 px-6 py-8">
         <div className="text-center">
           <h1 className="font-[family-name:var(--font-baloo)] text-2xl font-bold text-rose-deep">
-            Pague {formatBRL(PRECO_POR_NUMERO)} no Pix
+            Pague {formatBRL(resultado.total)} no Pix
           </h1>
           <p className="mt-1 text-sm font-bold text-mauve/80">
-            Número {numero} · escaneie o QR Code no app do seu banco
+            {resultado.quantidade}{" "}
+            {resultado.quantidade === 1 ? "número" : "números"} · escaneie o QR
+            Code no app do seu banco
           </p>
         </div>
+
+        <Fichas numeros={resultado.numeros} />
+
+        {resultado.substituidos.length > 0 && (
+          <div className="w-full rounded-xl border border-sage/40 bg-sage-soft/60 px-4 py-3 text-sm text-sage-deeper">
+            <p className="font-semibold">
+              Alguns números voaram, então cuidamos da troca 💛
+            </p>
+            <p className="mt-1 tabular-nums">
+              {resultado.substituidos
+                .map((s) => `${s.de} → ${s.para}`)
+                .join(" · ")}
+            </p>
+          </div>
+        )}
+
+        {resultado.perdidos.length > 0 && (
+          <div className="w-full rounded-xl border border-blush/50 bg-peach/20 px-4 py-3 text-sm text-rose-deep">
+            Não achamos substituto para{" "}
+            <span className="tabular-nums">
+              {resultado.perdidos.join(", ")}
+            </span>
+            . Por isso seu total ficou {formatBRL(resultado.total)}.
+          </div>
+        )}
 
         {expirou ? (
           <div className="rounded-xl border border-blush/50 bg-peach/20 p-4 text-center text-sm text-rose-deep">
             O tempo da reserva acabou. Se você já pagou, aguarde uns segundos.
-            Senão, o número foi liberado de novo. 🙏
+            Senão, os números foram liberados de novo. 🙏
           </div>
         ) : (
           <p className="text-sm text-mauve/80">
@@ -190,7 +267,10 @@ export default function ComprarFlow({ numero }: Props) {
           </p>
         )}
 
-        <QRCodePix qrCodeBase64={pix.qrCodeBase64} qrCode={pix.qrCode} />
+        <QRCodePix
+          qrCodeBase64={resultado.qrCodeBase64}
+          qrCode={resultado.qrCode}
+        />
 
         <div className="flex items-center gap-2 text-sm text-mauve/80">
           <span className="anim-pulsar inline-block h-2 w-2 rounded-full bg-sage" />
@@ -209,14 +289,20 @@ export default function ComprarFlow({ numero }: Props) {
     <div className="cartao flex flex-col gap-6 px-6 py-8">
       <div className="text-center">
         <h1 className="mt-1 font-[family-name:var(--font-baloo)] text-2xl font-bold text-rose-deep">
-          Reservar o número {numero}
+          {quantidade === 1
+            ? "Reservar o seu número"
+            : `Reservar os seus ${quantidade} números`}
         </h1>
         <p className="mt-1 text-mauve/85">
-          Valor:{" "}
-          <strong className="text-sage-deep">{formatBRL(PRECO_POR_NUMERO)}</strong>{" "}
+          Total:{" "}
+          <strong className="text-sage-deep">
+            {formatBRL(totalPrevisto)}
+          </strong>{" "}
           · pagamento via Pix
         </p>
       </div>
+
+      <Fichas numeros={numeros} />
 
       <form onSubmit={enviar} className="flex flex-col gap-4">
         <Campo
@@ -255,6 +341,8 @@ export default function ComprarFlow({ numero }: Props) {
           </p>
         )}
 
+        {widgetCaptcha}
+
         <button
           type="submit"
           disabled={etapa === "enviando"}
@@ -278,6 +366,22 @@ export default function ComprarFlow({ numero }: Props) {
       <Link href="/" className="botao-voltar text-center">
         ← Voltar para a grade
       </Link>
+    </div>
+  );
+}
+
+/** Mostra os números escolhidos como "patinhas". */
+function Fichas({ numeros }: { numeros: number[] }) {
+  return (
+    <div className="flex flex-wrap justify-center gap-2">
+      {numeros.map((n) => (
+        <span
+          key={n}
+          className="inline-flex items-center gap-1 rounded-full border border-sage/40 bg-sage-soft px-2.5 py-1 text-sm font-semibold tabular-nums text-sage-deeper"
+        >
+          {n}
+        </span>
+      ))}
     </div>
   );
 }
@@ -355,7 +459,9 @@ function Estado({
       <span className="text-5xl" role="img" aria-hidden>
         {emoji}
       </span>
-      <h1 className={`font-[family-name:var(--font-baloo)] text-2xl font-bold ${corTitulo}`}>
+      <h1
+        className={`font-[family-name:var(--font-baloo)] text-2xl font-bold ${corTitulo}`}
+      >
         {titulo}
       </h1>
       <p className="max-w-sm text-ink/85">{texto}</p>

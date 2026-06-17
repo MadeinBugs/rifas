@@ -22,6 +22,27 @@ create table if not exists public.compradores (
   pago_em   timestamptz
 );
 
+-- ── Tabela PRIVADA de PEDIDOS — agrupa N números num único pagamento Pix ──
+-- Uma pessoa pode escolher vários números e pagar UM Pix com o total.
+-- `numeros` guarda o conjunto reservado; o webhook marca todos como pagos juntos.
+-- A PII continua só em `compradores` (1 linha por número); aqui fica só o pagamento.
+create table if not exists public.pedidos (
+  id             uuid primary key default gen_random_uuid(),
+  status         text not null default 'aguardando'
+                   check (status in ('aguardando', 'pago', 'expirado')),
+  pix_id         text,                       -- id da order no Mercado Pago
+  quantidade     int  not null,
+  total_centavos int  not null,
+  numeros        int[] not null,             -- números reservados neste pedido
+  reservado_em   timestamptz not null default now(),
+  pago_em        timestamptz,
+  criado_em      timestamptz not null default now()
+);
+
+-- Vincula cada comprador (1 por número) ao seu pedido (agrupamento do pagamento).
+alter table public.compradores
+  add column if not exists pedido_id uuid references public.pedidos(id) on delete set null;
+
 -- ── Popular 1..500 (idempotente) ──
 insert into public.numeros (numero)
 select generate_series(1, 500)
@@ -30,10 +51,14 @@ on conflict (numero) do nothing;
 -- ── Índices ──
 create index if not exists idx_numeros_status        on public.numeros(status);
 create index if not exists idx_numeros_reservado_em  on public.numeros(reservado_em);
+create index if not exists idx_pedidos_status        on public.pedidos(status);
+create index if not exists idx_pedidos_reservado_em  on public.pedidos(reservado_em);
+create index if not exists idx_pedidos_pix_id        on public.pedidos(pix_id);
 
 -- ── Row Level Security (RLS) ──
 alter table public.numeros     enable row level security;
 alter table public.compradores enable row level security;
+alter table public.pedidos     enable row level security;
 
 -- numeros: leitura pública liberada (contém só número + status, sem PII).
 drop policy if exists "numeros_public_read" on public.numeros;
@@ -62,6 +87,10 @@ grant select, insert, update, delete on public.numeros to service_role;
 -- compradores: SEM grant para anon/authenticated → permanece invisível.
 -- Apenas o backend (service role) acessa os dados pessoais.
 grant select, insert, update, delete on public.compradores to service_role;
+
+-- pedidos: SEM grant para anon/authenticated → invisível ao cliente.
+-- Apenas o backend (service role) cria/atualiza pedidos e confirma pagamentos.
+grant select, insert, update, delete on public.pedidos to service_role;
 
 -- ── Tabela SORTEIO (singleton: apenas 1 linha) ──
 -- Persiste o vencedor para que o resultado seja auditável e irreversível

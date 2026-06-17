@@ -5,6 +5,7 @@ import GridNumeros from "@/components/GridNumeros";
 import HistoriaGato from "@/components/HistoriaGato";
 import { NumerosProvider } from "@/components/NumerosProvider";
 import BarraProgresso from "@/components/BarraProgresso";
+import BarraSelecao from "@/components/BarraSelecao";
 import { FOTO_CAPA } from "@/lib/fotos";
 import {
   PRECO_POR_NUMERO,
@@ -75,6 +76,8 @@ export default async function Home() {
           <section id="numeros" className="scroll-mt-6">
             <GridNumeros />
           </section>
+
+          <BarraSelecao />
         </NumerosProvider>
       ) : (
         <>

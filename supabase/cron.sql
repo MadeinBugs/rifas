@@ -24,6 +24,12 @@ select cron.schedule(
   'expirar-reservas',
   '*/5 * * * *',
   $$
+    -- 0) marca pedidos vencidos como expirados (agrupa N números num pagamento)
+    update public.pedidos
+    set status = 'expirado'
+    where status = 'aguardando'
+      and reservado_em < now() - interval '15 minutes';
+
     -- 1) limpa a PII das reservas vencidas
     update public.compradores c
     set nome = null, whatsapp = null, email = null, pix_id = null

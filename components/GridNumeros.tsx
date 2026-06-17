@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo } from "react";
 import type { CSSProperties } from "react";
 import { useNumeros } from "@/components/NumerosProvider";
@@ -25,8 +24,23 @@ const ESTILO_BOTAO: Record<NumeroStatus, string> = {
   pago: "border-mauve/20 bg-mauve/10 text-mauve/50 cursor-not-allowed",
 };
 
+// Número escolhido pela pessoa: preenchido em sage, com selo de confirmação.
+const ESTILO_SELECIONADO =
+  "border-sage-deep bg-sage text-white shadow-[0_6px_14px_-7px_rgba(94,115,80,0.75)] hover:-translate-y-0.5";
+
+// Livre, porém bloqueado por ter atingido o limite por pedido.
+const ESTILO_BLOQUEADO =
+  "border-sage/25 bg-sage-soft/50 text-sage-deeper/40 cursor-not-allowed";
+
 export default function GridNumeros() {
-  const { statusPorNumero, contagem } = useNumeros();
+  const {
+    statusPorNumero,
+    contagem,
+    selecionados,
+    alternar,
+    atingiuMax,
+    maximo,
+  } = useNumeros();
 
   const numeros = useMemo(
     () => Array.from({ length: TOTAL_NUMEROS }, (_, i) => i + 1),
@@ -35,9 +49,15 @@ export default function GridNumeros() {
 
   return (
     <section className="flex flex-col gap-5">
-      <h2 className="font-[family-name:var(--font-baloo)] text-2xl font-bold text-mauve">
-        Escolha o seu número da sorte
-      </h2>
+      <div className="flex flex-col gap-1">
+        <h2 className="font-[family-name:var(--font-baloo)] text-2xl font-bold text-mauve">
+          Escolha o seu número da sorte
+        </h2>
+        <p className="text-sm text-mauve/80">
+          Toque para escolher quantos quiser — some tudo e pague de uma vez no
+          Pix 💛
+        </p>
+      </div>
 
       {/* Legenda + contadores */}
       <div className="flex flex-wrap gap-4 text-sm">
@@ -54,21 +74,58 @@ export default function GridNumeros() {
       <div className="grade-numeros">
         {numeros.map((n) => {
           const status = statusPorNumero[n] ?? "livre";
-          const classes = `${BASE_BOTAO} ${ESTILO_BOTAO[status]}`;
+          const selecionado = selecionados.has(n);
 
-          if (status === "livre") {
+          // Selecionado: preenchido em sage, com selo. Toque remove.
+          if (selecionado) {
             return (
-              <Link
+              <button
                 key={n}
-                href={`/comprar/${n}`}
-                className={classes}
-                onClick={() => tocarPop()}
-                aria-label={`Número ${n} — livre, ${formatBRL(
-                  PRECO_POR_NUMERO,
-                )}. Clique para comprar.`}
+                type="button"
+                aria-pressed
+                onClick={() => {
+                  alternar(n);
+                  tocarPop();
+                }}
+                className={`${BASE_BOTAO} ${ESTILO_SELECIONADO}`}
+                aria-label={`Número ${n} — escolhido. Toque para remover.`}
               >
                 {n}
-              </Link>
+                <span
+                  className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[9px] font-bold text-sage-deep shadow-sm"
+                  aria-hidden
+                >
+                  ✓
+                </span>
+              </button>
+            );
+          }
+
+          if (status === "livre") {
+            const bloqueado = atingiuMax;
+            return (
+              <button
+                key={n}
+                type="button"
+                aria-pressed={false}
+                disabled={bloqueado}
+                onClick={() => {
+                  alternar(n);
+                  tocarPop();
+                }}
+                className={`${BASE_BOTAO} ${
+                  bloqueado ? ESTILO_BLOQUEADO : ESTILO_BOTAO.livre
+                }`}
+                aria-label={
+                  bloqueado
+                    ? `Número ${n} — limite de ${maximo} números por pedido atingido`
+                    : `Número ${n} — livre, ${formatBRL(
+                        PRECO_POR_NUMERO,
+                      )}. Toque para escolher.`
+                }
+              >
+                {n}
+              </button>
             );
           }
 
@@ -78,7 +135,7 @@ export default function GridNumeros() {
                 key={n}
                 type="button"
                 disabled
-                className={classes}
+                className={`${BASE_BOTAO} ${ESTILO_BOTAO.pago}`}
                 aria-label={`Número ${n} — pago`}
               >
                 <Pata cor="#6d6875" giro={-15} opacidade={0.3} />
@@ -93,7 +150,7 @@ export default function GridNumeros() {
               key={n}
               type="button"
               disabled
-              className={classes}
+              className={`${BASE_BOTAO} ${ESTILO_BOTAO.reservado}`}
               aria-label={`Número ${n} — reservado`}
             >
               <Pata cor="#e5989b" giro={20} opacidade={0.5} />
@@ -154,16 +211,6 @@ function Pata({
         opacity: opacidade,
         transform: `rotate(${giro}deg)`,
       }}
-      aria-hidden
-    />
-  );
-}
-
-/** Risco diagonal para números pagos. */
-function TacheaDiagonal() {
-  return (
-    <span
-      className="pointer-events-none absolute left-1/2 top-1/2 h-px w-[130%] -translate-x-1/2 -translate-y-1/2 -rotate-[30deg] bg-mauve/50"
       aria-hidden
     />
   );

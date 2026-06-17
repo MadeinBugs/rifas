@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { validarAssinaturaWebhook } from "@/lib/mercadopago";
-import { confirmarPagamentoPorOrder } from "@/lib/pagamento";
+import { confirmarPagamentoPorPedido } from "@/lib/pagamento";
 
 export const dynamic = "force-dynamic";
 
@@ -57,10 +57,10 @@ export async function POST(request: Request) {
 
   // 3) Consultar a order no MP e marcar como pago (idempotente).
   try {
-    const r = await confirmarPagamentoPorOrder(dataId);
+    const r = await confirmarPagamentoPorPedido(dataId);
     return NextResponse.json({
       ok: true,
-      numero: r.numero,
+      pedidoId: r.pedidoId,
       paid: r.paid,
       jaEstavaPago: r.jaEstavaPago,
     });
