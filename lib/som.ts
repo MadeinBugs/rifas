@@ -47,9 +47,59 @@ function tocarNotas(notas: Nota[]): void {
   }
 }
 
-/** "Pop" curtinho e fofo — para toques/cliques leves. */
+/** "Pop" curtinho e fofo — para SELECIONAR um número / toques leves. */
 export function tocarPop(): void {
   tocarNotas([{ freq: 660, inicio: 0, duracao: 0.09, volume: 0.05 }]);
+}
+
+/** Descidinha suave — para REMOVER um número já escolhido. */
+export function tocarRemover(): void {
+  tocarNotas([
+    { freq: 520, inicio: 0, duracao: 0.08, volume: 0.045 },
+    { freq: 390, inicio: 0.05, duracao: 0.1, volume: 0.04 },
+  ]);
+}
+
+/** "Tum" grave e abafado — ao tocar num número indisponível/bloqueado. */
+export function tocarBloqueado(): void {
+  tocarNotas([
+    { freq: 196, inicio: 0, duracao: 0.12, volume: 0.05, tipo: "triangle" },
+    { freq: 165, inicio: 0.07, duracao: 0.14, volume: 0.045, tipo: "triangle" },
+  ]);
+}
+
+/** Varredura descendente — ao limpar a seleção ("Limpar"). */
+export function tocarLimpar(): void {
+  tocarNotas([
+    { freq: 700, inicio: 0, duracao: 0.07, volume: 0.045 },
+    { freq: 560, inicio: 0.05, duracao: 0.07, volume: 0.04 },
+    { freq: 440, inicio: 0.1, duracao: 0.09, volume: 0.04 },
+  ]);
+}
+
+/** Subida confiante (dó→sol) — ao seguir para o checkout ("Continuar"). */
+export function tocarContinuar(): void {
+  tocarNotas([
+    { freq: 523.25, inicio: 0, duracao: 0.12, volume: 0.05 }, // dó
+    { freq: 783.99, inicio: 0.1, duracao: 0.18, volume: 0.05 }, // sol
+  ]);
+}
+
+/** Descida gentil (ré→lá) — ao voltar para a grade. */
+export function tocarVoltar(): void {
+  tocarNotas([
+    { freq: 587.33, inicio: 0, duracao: 0.12, volume: 0.045 }, // ré
+    { freq: 440, inicio: 0.09, duracao: 0.16, volume: 0.045 }, // lá
+  ]);
+}
+
+/** Arpejo acolhedor (dó-mi-sol) — convite do "Quero ajudar!". */
+export function tocarAjudar(): void {
+  tocarNotas([
+    { freq: 523.25, inicio: 0, duracao: 0.14, volume: 0.05 }, // dó
+    { freq: 659.25, inicio: 0.09, duracao: 0.16, volume: 0.05 }, // mi
+    { freq: 783.99, inicio: 0.18, duracao: 0.24, volume: 0.05 }, // sol
+  ]);
 }
 
 /** Carrilhão suave de duas notas — para confirmação do pagamento. */

@@ -6,7 +6,7 @@ import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import QRCodePix from "@/components/QRCodePix";
 import { PRECO_POR_NUMERO, formatBRL } from "@/lib/rifa";
 import { dispararCoracoes } from "@/lib/efeitos";
-import { tocarChime, tocarPop } from "@/lib/som";
+import { tocarChime, tocarPop, tocarVoltar } from "@/lib/som";
 import IconePix from "@/components/IconePix";
 
 type Props = { numeros: number[] };
@@ -190,7 +190,7 @@ export default function ApoiarFlow({ numeros }: Props) {
         <p className="self-end text-right text-base italic text-rose-deep/55">
           ~ Bela e Andress, pais do Suspiro
         </p>
-        <Link href="/" className="botao-primario mt-1">
+        <Link href="/" onClick={() => tocarVoltar()} className="botao-primario mt-1">
           Voltar para a grade
         </Link>
       </Estado>
@@ -204,7 +204,7 @@ export default function ApoiarFlow({ numeros }: Props) {
         titulo="Os números voaram!"
         texto="Os números escolhidos já foram reservados e não encontramos outros livres agora. Dá uma olhada na grade — logo abrem mais."
       >
-        <Link href="/#numeros" className="botao-primario mt-1">
+        <Link href="/#numeros" onClick={() => tocarVoltar()} className="botao-primario mt-1">
           Voltar para a grade
         </Link>
       </Estado>
@@ -219,7 +219,7 @@ export default function ApoiarFlow({ numeros }: Props) {
       <div className="cartao flex flex-col items-center gap-5 px-6 py-8">
         <div className="text-center">
           <h1 className="font-[family-name:var(--font-baloo)] text-2xl font-bold text-rose-deep">
-            Pague {formatBRL(resultado.total)} no Pix
+            {formatBRL(resultado.total)} no Pix
           </h1>
           <p className="mt-1 text-sm font-bold text-mauve/80">
             {resultado.quantidade}{" "}
@@ -277,7 +277,7 @@ export default function ApoiarFlow({ numeros }: Props) {
           Aguardando a confirmação do pagamento…
         </div>
 
-        <Link href="/" className="botao-voltar">
+        <Link href="/" onClick={() => tocarVoltar()} className="botao-voltar">
           ← Voltar para a grade
         </Link>
       </div>
@@ -363,7 +363,7 @@ export default function ApoiarFlow({ numeros }: Props) {
         Seus dados são usados apenas para entrar em contato sobre esta ação.
       </p>
 
-      <Link href="/" className="botao-voltar text-center">
+      <Link href="/" onClick={() => tocarVoltar()} className="botao-voltar text-center">
         ← Voltar para a grade
       </Link>
     </div>

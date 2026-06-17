@@ -1,11 +1,11 @@
 import Image from "next/image";
-import Link from "next/link";
 import { createAnonClient } from "@/lib/supabase";
 import GridNumeros from "@/components/GridNumeros";
 import HistoriaGato from "@/components/HistoriaGato";
 import { NumerosProvider } from "@/components/NumerosProvider";
 import BarraProgresso from "@/components/BarraProgresso";
 import BarraSelecao from "@/components/BarraSelecao";
+import BotaoAjudar from "@/components/BotaoAjudar";
 import { FOTO_CAPA } from "@/lib/fotos";
 import {
   PRECO_POR_NUMERO,
@@ -243,17 +243,6 @@ function Chip({
         {titulo}
       </p>
       <p className="text-sm text-mauve">{texto}</p>
-    </div>
-  );
-}
-
-/** Botão de ação que leva direto à grade de números. */
-function BotaoAjudar() {
-  return (
-    <div className="flex justify-center">
-      <Link href="#numeros" className="botao-primario text-base">
-        Quero ajudar!
-      </Link>
     </div>
   );
 }

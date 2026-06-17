@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useNumeros } from "@/components/NumerosProvider";
 import { PRECO_POR_NUMERO, formatBRL } from "@/lib/rifa";
+import { tocarLimpar, tocarContinuar } from "@/lib/som";
 
 /**
  * Barra fofa fixa no rodapé que aparece quando há números escolhidos.
@@ -36,13 +37,20 @@ export default function BarraSelecao() {
 
         <button
           type="button"
-          onClick={limpar}
+          onClick={() => {
+            tocarLimpar();
+            limpar();
+          }}
           className="shrink-0 text-xs text-rose-deep/70 underline-offset-2 hover:underline"
         >
           limpar
         </button>
 
-        <Link href={href} className="botao-primario shrink-0 px-5 py-2.5 text-sm">
+        <Link
+          href={href}
+          onClick={() => tocarContinuar()}
+          className="botao-primario shrink-0 px-5 py-2.5 text-sm"
+        >
           Continuar
         </Link>
       </div>

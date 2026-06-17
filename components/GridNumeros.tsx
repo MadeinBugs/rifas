@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import type { CSSProperties } from "react";
 import { useNumeros } from "@/components/NumerosProvider";
-import { tocarPop } from "@/lib/som";
+import { tocarPop, tocarRemover, tocarBloqueado } from "@/lib/som";
 import {
   TOTAL_NUMEROS,
   formatBRL,
@@ -54,8 +54,7 @@ export default function GridNumeros() {
           Escolha o seu número da sorte
         </h2>
         <p className="text-sm text-mauve/80">
-          Toque para escolher quantos quiser — some tudo e pague de uma vez no
-          Pix 💛
+          Toque para escolher quantos quiser
         </p>
       </div>
 
@@ -85,7 +84,7 @@ export default function GridNumeros() {
                 aria-pressed
                 onClick={() => {
                   alternar(n);
-                  tocarPop();
+                  tocarRemover();
                 }}
                 className={`${BASE_BOTAO} ${ESTILO_SELECIONADO}`}
                 aria-label={`Número ${n} — escolhido. Toque para remover.`}
@@ -108,8 +107,12 @@ export default function GridNumeros() {
                 key={n}
                 type="button"
                 aria-pressed={false}
-                disabled={bloqueado}
+                aria-disabled={bloqueado}
                 onClick={() => {
+                  if (bloqueado) {
+                    tocarBloqueado();
+                    return;
+                  }
                   alternar(n);
                   tocarPop();
                 }}
@@ -134,7 +137,8 @@ export default function GridNumeros() {
               <button
                 key={n}
                 type="button"
-                disabled
+                aria-disabled
+                onClick={() => tocarBloqueado()}
                 className={`${BASE_BOTAO} ${ESTILO_BOTAO.pago}`}
                 aria-label={`Número ${n} — pago`}
               >
@@ -149,7 +153,8 @@ export default function GridNumeros() {
             <button
               key={n}
               type="button"
-              disabled
+              aria-disabled
+              onClick={() => tocarBloqueado()}
               className={`${BASE_BOTAO} ${ESTILO_BOTAO.reservado}`}
               aria-label={`Número ${n} — reservado`}
             >
