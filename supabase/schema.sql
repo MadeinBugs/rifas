@@ -29,7 +29,7 @@ create table if not exists public.compradores (
 create table if not exists public.pedidos (
   id             uuid primary key default gen_random_uuid(),
   status         text not null default 'aguardando'
-                   check (status in ('aguardando', 'pago', 'expirado')),
+                   check (status in ('aguardando', 'pago', 'expirado', 'pago_expirado')),
   pix_id         text,                       -- id da order no Mercado Pago
   quantidade     int  not null,
   total_centavos int  not null,
@@ -38,6 +38,17 @@ create table if not exists public.pedidos (
   pago_em        timestamptz,
   criado_em      timestamptz not null default now()
 );
+
+-- Garante o status 'pago_expirado' mesmo em bancos criados antes desta versão.
+-- (Pagamento que caiu DEPOIS da expiração: o pedido NÃO é confirmado, fica
+--  marcado aqui para conferência/reembolso manual no painel.)
+do $$
+begin
+  alter table public.pedidos drop constraint if exists pedidos_status_check;
+  alter table public.pedidos
+    add constraint pedidos_status_check
+    check (status in ('aguardando', 'pago', 'expirado', 'pago_expirado'));
+end $$;
 
 -- Vincula cada comprador (1 por número) ao seu pedido (agrupamento do pagamento).
 alter table public.compradores

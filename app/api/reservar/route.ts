@@ -7,7 +7,7 @@ import {
   PRECO_POR_NUMERO,
   MAX_NUMEROS_POR_PEDIDO,
 } from "@/lib/rifa";
-import { verificarHcaptcha } from "@/lib/captcha";
+import { verificarCaptcha } from "@/lib/captcha";
 
 export const dynamic = "force-dynamic";
 
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
   // Anti-robô: confirma o token do hCaptcha antes de tocar no banco/MP.
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
-  const captchaOk = await verificarHcaptcha(captchaToken || null, ip);
+  const captchaOk = await verificarCaptcha(captchaToken || null, ip);
   if (!captchaOk) {
     return NextResponse.json(
       { erro: "Não conseguimos confirmar que você não é um robô. Tente de novo." },

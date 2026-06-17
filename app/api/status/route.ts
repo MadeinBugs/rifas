@@ -54,12 +54,22 @@ export async function GET(request: Request) {
     return NextResponse.json({ status: "pago" });
   }
 
+  // Pagamento órfão (pagou após expirar; reembolso manual): para o cliente,
+  // a reserva expirou. Os números não ficaram com ele.
+  if (data.status === "pago_expirado") {
+    return NextResponse.json({ status: "expirado" });
+  }
+
   // Fallback ativo: confirma no MP se ainda estiver aguardando.
   if (data.status === "aguardando" && data.pix_id) {
     try {
       const r = await confirmarPagamentoPorPedido(data.pix_id);
-      if (r.paid) {
+      if (r.paid && !r.orfao) {
         return NextResponse.json({ status: "pago" });
+      }
+      // Confirmou pagamento, mas já tinha expirado → trata como expirado.
+      if (r.orfao) {
+        return NextResponse.json({ status: "expirado" });
       }
     } catch (e) {
       console.error("[status] fallback MP falhou:", e);

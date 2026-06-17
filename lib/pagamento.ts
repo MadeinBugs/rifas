@@ -68,6 +68,12 @@ export type ResultadoConfirmacaoPedido = {
   paid: boolean;
   /** true se o pedido já estava marcado como pago antes desta chamada. */
   jaEstavaPago: boolean;
+  /**
+   * true se o MP confirmou o pagamento DEPOIS de o pedido expirar (o cron já
+   * liberou os números, que podem ter sido revendidos). Pagamento órfão:
+   * exige reembolso/realocação manual. Não marcamos os números como pagos.
+   */
+  orfao: boolean;
   numeros: number[];
 };
 
@@ -87,10 +93,10 @@ export async function confirmarPagamentoPorPedido(
   const { pedidoId, paid } = await consultarOrder(orderId);
 
   if (pedidoId == null) {
-    return { pedidoId: null, paid, jaEstavaPago: false, numeros: [] };
+    return { pedidoId: null, paid, jaEstavaPago: false, orfao: false, numeros: [] };
   }
   if (!paid) {
-    return { pedidoId, paid: false, jaEstavaPago: false, numeros: [] };
+    return { pedidoId, paid: false, jaEstavaPago: false, orfao: false, numeros: [] };
   }
 
   const supabase = createServiceClient();
@@ -109,19 +115,60 @@ export async function confirmarPagamentoPorPedido(
   }
 
   const numeros: number[] = Array.isArray(pedido.numeros) ? pedido.numeros : [];
-  const jaEstavaPago = pedido.status === "pago";
   const agora = new Date().toISOString();
 
-  // Marca o pedido como pago (idempotente).
-  const { error: errUpd } = await supabase
+  // Reentrega idempotente: já estava pago, nada a fazer.
+  if (pedido.status === "pago") {
+    return { pedidoId, paid: true, jaEstavaPago: true, orfao: false, numeros };
+  }
+
+  // Confirma o pedido SÓ se ainda estiver 'aguardando' (atômico, à prova de
+  // corrida com o cron). Se o cron já o expirou, esta atualização não casa
+  // nenhuma linha — e NÃO ressuscitamos os números, que já podem ter sido
+  // liberados/revendidos para outra pessoa.
+  const { data: confirmados, error: errUpd } = await supabase
     .from("pedidos")
     .update({ status: "pago", pago_em: agora, pix_id: orderId })
     .eq("id", pedidoId)
-    .neq("status", "pago");
+    .eq("status", "aguardando")
+    .select("id");
   if (errUpd) {
     throw new Error(`Falha ao marcar pedido ${pedidoId} como pago: ${errUpd.message}`);
   }
 
+  // Nenhuma linha atualizada: o pedido saiu de 'aguardando' entre a leitura e o
+  // update. Distinguimos "outra confirmação chegou primeiro" de "órfão".
+  if (!confirmados || confirmados.length === 0) {
+    const { data: estadoAtual } = await supabase
+      .from("pedidos")
+      .select("status")
+      .eq("id", pedidoId)
+      .single();
+
+    if (estadoAtual?.status === "pago") {
+      // Outra entrega de webhook/polling confirmou antes: ok (idempotente).
+      return { pedidoId, paid: true, jaEstavaPago: true, orfao: false, numeros };
+    }
+
+    // PAGAMENTO ÓRFÃO: pagou DEPOIS de expirar. Marca com status dedicado
+    // (consultável no painel) e NÃO toca nos números — eles já podem ter dono.
+    console.error(
+      `[confirmar] ⚠️ PAGAMENTO ÓRFÃO — pedido ${pedidoId} estava ` +
+        `'${estadoAtual?.status ?? "?"}' mas o MP confirmou (order ${orderId}). ` +
+        `Números ${JSON.stringify(numeros)} podem ter sido liberados/revendidos. ` +
+        `Requer reembolso ou realocação manual.`,
+    );
+    await supabase
+      .from("pedidos")
+      .update({ status: "pago_expirado", pago_em: agora, pix_id: orderId })
+      .eq("id", pedidoId)
+      .eq("status", "expirado");
+
+    return { pedidoId, paid: true, jaEstavaPago: false, orfao: true, numeros };
+  }
+
+  // Caminho normal: o pedido ainda estava 'aguardando', então seus números
+  // seguem reservados por ele — é seguro marcá-los como pagos.
   if (numeros.length > 0) {
     // Marca todos os números do pedido como pagos (idempotente).
     const { error: errNum } = await supabase
@@ -148,5 +195,5 @@ export async function confirmarPagamentoPorPedido(
     }
   }
 
-  return { pedidoId, paid: true, jaEstavaPago, numeros };
+  return { pedidoId, paid: true, jaEstavaPago: false, orfao: false, numeros };
 }

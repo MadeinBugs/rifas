@@ -63,6 +63,7 @@ export async function POST(request: Request) {
       pedidoId: r.pedidoId,
       paid: r.paid,
       jaEstavaPago: r.jaEstavaPago,
+      orfao: r.orfao,
     });
   } catch (e) {
     // Order inexistente (ex.: id de teste 123456) ou erro transitório no MP.

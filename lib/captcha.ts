@@ -24,7 +24,7 @@ type SiteverifyResposta = {
   "error-codes"?: string[];
 };
 
-export async function verificarHcaptcha(
+export async function verificarCaptcha(
   token: string | null | undefined,
   ip?: string | null,
 ): Promise<boolean> {
