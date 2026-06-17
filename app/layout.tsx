@@ -32,14 +32,16 @@ const caveat = Caveat({
 
 // URL base do site, usada para gerar URLs absolutas das imagens de preview
 // (og:image / twitter:image). Em produção na Vercel, usamos a URL de produção;
-// localmente, caímos no localhost.
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-  ? process.env.NEXT_PUBLIC_BASE_URL
-  : process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000";
+// localmente, caímos no localhost. Normalizamos o protocolo porque as variáveis
+// da Vercel (e às vezes a configurada à mão) vêm sem "https://".
+const baseUrlBruta =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+  process.env.VERCEL_URL ||
+  "http://localhost:3000";
+const baseUrl = /^https?:\/\//.test(baseUrlBruta)
+  ? baseUrlBruta
+  : `https://${baseUrlBruta}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
