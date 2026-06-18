@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Baloo_2, Quicksand, Nunito, Caveat } from "next/font/google";
+import { PT_SITE_URL, EN_SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 // Display: nome do Suspiro, títulos dos atos, números grandes.
@@ -62,6 +63,14 @@ export const metadata: Metadata = {
     title: "Salve o Suspiro",
     description:
       "Ajude no tratamento do Suspiro. Escolha um número e participe dessa ação entre amigos. 💛",
+  },
+  // hreflang: liga as duas versões do site (PT-BR e EN) para buscadores.
+  alternates: {
+    canonical: "/",
+    languages: {
+      "pt-BR": PT_SITE_URL,
+      en: EN_SITE_URL,
+    },
   },
 };
 

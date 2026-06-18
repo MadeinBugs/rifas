@@ -1,35 +1,33 @@
-import { JORNADA } from "@/lib/fotos";
+import { type HistoriaConteudo, CONTEUDO_HISTORIA_PT } from "@/lib/textos";
 import Galeria from "./Galeria";
-
-const NOME_GATO = "Suspiro";
-
-// Conteúdo claramente provisório — será substituído pelos valores e
-// comprovantes reais do tratamento do Suspiro.
-const CUSTOS_EXEMPLO = [
-  { item: "Consulta + exames iniciais", valor: "R$ 000,00" },
-  { item: "Diagnóstico (FelV + linfoma)", valor: "R$ 000,00" },
-  { item: "Sessões de quimioterapia", valor: "R$ 000,00" },
-  { item: "Medicamentos e cuidados", valor: "R$ 000,00" },
-];
 
 /**
  * "A Jornada do Suspiro" — a história contada em 3 atos (resgate, dias felizes,
  * tratamento), cada um com seu cluster de fotos espalhadas. Termina com um
  * convite acolhedor para participar. A barra de progresso vive na capa.
+ *
+ * O conteúdo é parametrizável (`conteudo`) para reaproveitar o componente em
+ * outro idioma. Sem prop, usa o conteúdo PT-BR padrão (saída idêntica). A seção
+ * de custos só aparece quando o conteúdo a fornece.
  */
-export default function HistoriaGato() {
+export default function HistoriaGato({
+  conteudo = CONTEUDO_HISTORIA_PT,
+}: {
+  conteudo?: HistoriaConteudo;
+}) {
+  const { custos } = conteudo;
   return (
     <section className="flex flex-col gap-14">
       <div className="text-center">
         <p className="font-[family-name:var(--font-caveat)] text-2xl text-rose-deep">
-          do começo até aqui
+          {conteudo.sobrescrita}
         </p>
         <h2 className="font-[family-name:var(--font-baloo)] text-3xl font-bold text-mauve sm:text-4xl">
-          A Jornada do {NOME_GATO}
+          {conteudo.titulo}
         </h2>
       </div>
 
-      {JORNADA.map((ato, i) => {
+      {conteudo.jornada.map((ato, i) => {
         const alinhamento =
           i % 2 === 0
             ? "sm:items-start sm:text-left"
@@ -88,69 +86,72 @@ export default function HistoriaGato() {
       })}
 
       {/* Detalhamento dos custos (placeholder) */}
-      <details className="cartao overflow-hidden">
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-6 py-5 font-[family-name:var(--font-quicksand)] text-base font-semibold text-mauve transition-colors hover:text-rose-deep [&::-webkit-details-marker]:hidden">
-          <span>Veja todos os custos que tivemos até o momento:</span>
-          <span
-            className="seta-dropdown shrink-0 text-rose-deep"
-            aria-hidden
-          >
-            ▾
-          </span>
-        </summary>
+      {custos && (
+        <details className="cartao overflow-hidden">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-6 py-5 font-[family-name:var(--font-quicksand)] text-base font-semibold text-mauve transition-colors hover:text-rose-deep [&::-webkit-details-marker]:hidden">
+            <span>{custos.resumo}</span>
+            <span
+              className="seta-dropdown shrink-0 text-rose-deep"
+              aria-hidden
+            >
+              ▾
+            </span>
+          </summary>
 
-        <div className="flex flex-col gap-5 border-t border-rose-deep/10 px-6 py-6">
-          <p className="rounded-xl bg-peach/20 px-3 py-2 text-sm text-rose-deep">
-            ⚠️ Conteúdo de exemplo — em breve vamos preencher com os valores
-            reais e os comprovantes do tratamento do {NOME_GATO}.
-          </p>
+          <div className="flex flex-col gap-5 border-t border-rose-deep/10 px-6 py-6">
+            <p className="rounded-xl bg-peach/20 px-3 py-2 text-sm text-rose-deep">
+              {custos.aviso}
+            </p>
 
-          <ul className="flex flex-col gap-2 text-ink/85">
-            {CUSTOS_EXEMPLO.map((c) => (
-              <li
-                key={c.item}
-                className="flex items-center justify-between gap-4 border-b border-dashed border-rose-deep/15 pb-2 text-sm"
-              >
-                <span>{c.item}</span>
-                <span className="font-semibold tabular-nums text-mauve">
-                  {c.valor}
+            <ul className="flex flex-col gap-2 text-ink/85">
+              {custos.itens.map((c) => (
+                <li
+                  key={c.item}
+                  className="flex items-center justify-between gap-4 border-b border-dashed border-rose-deep/15 pb-2 text-sm"
+                >
+                  <span>{c.item}</span>
+                  <span className="font-semibold tabular-nums text-mauve">
+                    {c.valor}
+                  </span>
+                </li>
+              ))}
+              <li className="flex items-center justify-between gap-4 pt-1">
+                <span className="font-[family-name:var(--font-quicksand)] font-semibold text-mauve">
+                  {custos.totalLabel}
+                </span>
+                <span className="font-[family-name:var(--font-baloo)] text-lg font-bold text-rose-deep">
+                  {custos.totalValor}
                 </span>
               </li>
-            ))}
-            <li className="flex items-center justify-between gap-4 pt-1">
-              <span className="font-[family-name:var(--font-quicksand)] font-semibold text-mauve">
-                Total até agora
-              </span>
-              <span className="font-[family-name:var(--font-baloo)] text-lg font-bold text-rose-deep">
-                R$ 0.000,00
-              </span>
-            </li>
-          </ul>
+            </ul>
 
-          <div>
-            <p className="mb-2 text-sm font-semibold text-mauve">Comprovantes</p>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {[1, 2, 3].map((n) => (
-                <div
-                  key={n}
-                  className="flex aspect-[4/3] flex-col items-center justify-center rounded-xl border border-dashed border-rose-deep/25 bg-surface text-center text-xs text-mauve/60"
-                >
-                  <span aria-hidden className="text-base">
-                    🧾
-                  </span>
-                  comprovante {n}
-                  <span>(em breve)</span>
-                </div>
-              ))}
+            <div>
+              <p className="mb-2 text-sm font-semibold text-mauve">
+                {custos.comprovantesTitulo}
+              </p>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {[1, 2, 3].map((n) => (
+                  <div
+                    key={n}
+                    className="flex aspect-[4/3] flex-col items-center justify-center rounded-xl border border-dashed border-rose-deep/25 bg-surface text-center text-xs text-mauve/60"
+                  >
+                    <span aria-hidden className="text-base">
+                      🧾
+                    </span>
+                    {custos.comprovanteLabel} {n}
+                    <span>{custos.emBreve}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </details>
+        </details>
+      )}
 
       {/* Convite final */}
       <div className="flex flex-col items-center gap-1 py-1 text-center">
         <p className="max-w-xl text-lg leading-relaxed text-ink/85">
-          Cada número escolhido é um pedacinho de esperança no tratamento do {NOME_GATO}.
+          {conteudo.convite}
         </p>
       </div>
     </section>
