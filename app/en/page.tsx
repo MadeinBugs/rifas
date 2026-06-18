@@ -132,7 +132,7 @@ function Familia() {
           sizes="(max-width: 640px) 90vw, 48rem"
           className="h-auto w-full rounded-[0.35rem]"
         />
-        <figcaption className="pt-2 text-center font-[family-name:var(--font-caveat)] text-base text-mauve/80">
+        <figcaption className="pt-3 text-center font-[family-name:var(--font-caveat)] text-xl leading-tight text-rose-deep">
           {EN.familia.legenda}
         </figcaption>
       </figure>
@@ -160,7 +160,7 @@ function SobreFelv() {
             sizes="(max-width: 640px) 60vw, 13rem"
             className="h-auto w-full rounded-[0.35rem]"
           />
-          <figcaption className="pt-2 text-center font-[family-name:var(--font-caveat)] text-base text-mauve/80">
+          <figcaption className="pt-3 text-center font-[family-name:var(--font-caveat)] text-xl leading-tight text-rose-deep">
             {EN.felv.legenda}
           </figcaption>
         </figure>

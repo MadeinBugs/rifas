@@ -96,7 +96,7 @@ export const JORNADA: Ato[] = [
     titulo: "A Luta Até Agora",
     paragrafos: [
       "Em 30 de março de 2026 notamos a respiração dele ofegante. Levamos para o " +
-        "veterinário e ele foi diagnosticado com FelV e um Linfoma de " +
+        "veterinário e ele foi diagnosticado com FeLV e um Linfoma de " +
         "mediastino, um tipo de câncer. O Suspiro é forte e está enfrentando o " +
         "tratamento com a mesma coragem de sempre, mas a conta está sendo " +
         "bastante pesada.",

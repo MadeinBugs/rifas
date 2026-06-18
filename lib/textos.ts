@@ -224,7 +224,7 @@ export const EN = {
   felv: {
     titulo: "About FeLV",
     fotoAlt: "Bamboo, a beloved family cat who has passed away, in a portrait photo.",
-    legenda: "Bamboo",
+    legenda: "Bamboo ⭐",
     paragrafos: [
       "Our beloved Bamboo was also a FeLV victim, even though he was vaccinated.",
       "FeLV (the feline leukemia virus) is one of the leading infectious " +
