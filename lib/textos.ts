@@ -232,7 +232,7 @@ export const EN = {
         "them.",
       "The vaccine greatly lowers the risk, but it isn't a full guarantee. " +
         "That's why it matters so much to learn about it, test new cats before " +
-        "introducing them to the others, and keep vaccinations up to date 💛",
+        "introducing them to the others, raising them indoors and keeping vaccinations up to date 💛",
     ],
   },
   rodape:

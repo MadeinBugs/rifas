@@ -172,7 +172,7 @@ function SobreFelv() {
           <p>
             A vacina reduz bastante o risco, mas não é uma garantia total. Por
             isso é tão importante se informar, testar gatos novos antes de
-            apresentá-los aos outros e manter a vacinação em dia 💛
+            apresentá-los aos outros, criá-los dentro de casa e manter a vacinação em dia 💛
           </p>
         </div>
       </div>
