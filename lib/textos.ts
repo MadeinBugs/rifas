@@ -11,7 +11,15 @@
 
 import { JORNADA, type Ato, type Foto } from "@/lib/fotos";
 
-/** Bloco opcional de custos/comprovantes da história (placeholder na rifa PT). */
+/** Um comprovante de pagamento real, exibido como link para o PDF. */
+export interface ComprovanteItem {
+  rotulo: string;
+  data: string;
+  valor: string;
+  href: string;
+}
+
+/** Bloco opcional de custos/comprovantes da história (rifa PT). */
 export interface CustosConteudo {
   resumo: string;
   aviso: string;
@@ -19,8 +27,7 @@ export interface CustosConteudo {
   totalLabel: string;
   totalValor: string;
   comprovantesTitulo: string;
-  comprovanteLabel: string;
-  emBreve: string;
+  comprovantes: ComprovanteItem[];
 }
 
 /** Conteúdo completo do componente de história (A Jornada do Suspiro). */
@@ -42,20 +49,55 @@ export const CONTEUDO_HISTORIA_PT: HistoriaConteudo = {
   titulo: "A Jornada do Suspiro",
   jornada: JORNADA,
   custos: {
-    resumo: "Veja todos os custos que tivemos até o momento:",
+    resumo: "Veja os custos do tratamento até agora:",
     aviso:
-      "⚠️ Conteúdo de exemplo — em breve vamos preencher com os valores reais e os comprovantes do tratamento do Suspiro.",
+      "Valores somados a partir dos comprovantes de pagamento do tratamento do Suspiro.",
     itens: [
-      { item: "Consulta + exames iniciais", valor: "R$ 000,00" },
-      { item: "Diagnóstico (FelV + linfoma)", valor: "R$ 000,00" },
-      { item: "Sessões de quimioterapia", valor: "R$ 000,00" },
-      { item: "Medicamentos e cuidados", valor: "R$ 000,00" },
+      { item: "Quimioterapia, internação e exames", valor: "R$ 5.830,00" },
+      { item: "Medicamentos manipulados (abr–mai)", valor: "R$ 747,00" },
+      { item: "Exames de controle (ultrassom)", valor: "R$ 394,80" },
     ],
-    totalLabel: "Total até agora",
-    totalValor: "R$ 0.000,00",
-    comprovantesTitulo: "Comprovantes",
-    comprovanteLabel: "comprovante",
-    emBreve: "(em breve)",
+    totalLabel: "Total em comprovantes",
+    totalValor: "R$ 6.971,80",
+    comprovantesTitulo: "Comprovantes de pagamento",
+    comprovantes: [
+      {
+        rotulo: "Medicamentos manipulados",
+        data: "10/04",
+        valor: "R$ 291,00",
+        href: "/comprovantes/2026-04-10-medicamentos.pdf",
+      },
+      {
+        rotulo: "Medicamentos manipulados",
+        data: "22/04",
+        valor: "R$ 166,00",
+        href: "/comprovantes/2026-04-22-medicamentos.pdf",
+      },
+      {
+        rotulo: "Quimioterapia + internação",
+        data: "19/05",
+        valor: "R$ 5.830,00",
+        href: "/comprovantes/2026-05-19-quimioterapia-internacao.pdf",
+      },
+      {
+        rotulo: "Medicamento manipulado",
+        data: "21/05",
+        valor: "R$ 144,00",
+        href: "/comprovantes/2026-05-21-medicamento.pdf",
+      },
+      {
+        rotulo: "Medicamentos manipulados",
+        data: "26/05",
+        valor: "R$ 146,00",
+        href: "/comprovantes/2026-05-26-medicamentos.pdf",
+      },
+      {
+        rotulo: "Ultrassom + exames",
+        data: "12/06",
+        valor: "R$ 394,80",
+        href: "/comprovantes/2026-06-12-ultrassom-exames.pdf",
+      },
+    ],
   },
   convite:
     "Cada número escolhido é um pedacinho de esperança!",

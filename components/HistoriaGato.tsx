@@ -85,7 +85,7 @@ export default function HistoriaGato({
         );
       })}
 
-      {/* Detalhamento dos custos (placeholder) */}
+      {/* Detalhamento dos custos e comprovantes */}
       {custos && (
         <details className="cartao overflow-hidden">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-6 py-5 font-[family-name:var(--font-quicksand)] text-base font-semibold text-mauve transition-colors hover:text-rose-deep [&::-webkit-details-marker]:hidden">
@@ -129,20 +129,31 @@ export default function HistoriaGato({
               <p className="mb-2 text-sm font-semibold text-mauve">
                 {custos.comprovantesTitulo}
               </p>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {[1, 2, 3].map((n) => (
-                  <div
-                    key={n}
-                    className="flex aspect-[4/3] flex-col items-center justify-center rounded-xl border border-dashed border-rose-deep/25 bg-surface text-center text-xs text-mauve/60"
-                  >
-                    <span aria-hidden className="text-base">
-                      🧾
-                    </span>
-                    {custos.comprovanteLabel} {n}
-                    <span>{custos.emBreve}</span>
-                  </div>
+              <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {custos.comprovantes.map((c) => (
+                  <li key={c.href}>
+                    <a
+                      href={c.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 rounded-xl border border-rose-deep/15 bg-surface px-3 py-2.5 transition-colors hover:border-rose-deep/40 hover:bg-peach/10"
+                    >
+                      <span aria-hidden className="text-base">
+                        🧾
+                      </span>
+                      <span className="flex flex-1 flex-col leading-tight">
+                        <span className="text-sm font-medium text-mauve">
+                          {c.rotulo}
+                        </span>
+                        <span className="text-xs text-mauve/60">{c.data}</span>
+                      </span>
+                      <span className="text-sm font-semibold tabular-nums text-rose-deep">
+                        {c.valor}
+                      </span>
+                    </a>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           </div>
         </details>

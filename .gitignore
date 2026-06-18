@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# documentos privados (laudos com dados pessoais — não publicar)
+/documentos-privados
