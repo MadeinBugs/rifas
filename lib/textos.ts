@@ -58,7 +58,7 @@ export const CONTEUDO_HISTORIA_PT: HistoriaConteudo = {
     emBreve: "(em breve)",
   },
   convite:
-    "Cada número escolhido é um pedacinho de esperança no tratamento do Suspiro.",
+    "Cada número escolhido é um pedacinho de esperança!",
 };
 
 // ---------------------------------------------------------------------------
@@ -79,8 +79,8 @@ export const JORNADA_EN: Ato[] = [
     titulo: "The Rescue",
     paragrafos: [
       "Suspiro was found alone on the street three years ago, extremely weak " +
-        "and injured, with part of his chest exposed to wounds and insects. " +
-        "The vet said he wouldn't survive and that we should put him to sleep.",
+        "and injured, with part of his chest exposed to wounds and larvae. " +
+        "The vet said he wouldn't survive and that we should euthanize him.",
     ],
     fotos: [
       fotoEN(
@@ -100,8 +100,8 @@ export const JORNADA_EN: Ato[] = [
     rotulo: "Suspiro strong and healthy",
     titulo: "Happy Days",
     paragrafos: [
-      "With care, food (lots of food!) and treatment, Suspiro pulled through. " +
-        "He grew strong and healthy — a deeply loving, playful cat.",
+      "With care, food (lots of food!) and treatment, Suspiro survived. " +
+        "He grew strong and healthy, and became a lovely and playful cat.",
     ],
     fotos: [
       fotoEN(
@@ -121,7 +121,7 @@ export const JORNADA_EN: Ato[] = [
           altura: 1280,
           orientacao: "retrato",
         },
-        "King of the blanket",
+        "He's got scar above the nose",
         "Healthy, relaxed Suspiro on a soft blanket.",
       ),
       fotoEN(
@@ -131,8 +131,8 @@ export const JORNADA_EN: Ato[] = [
           altura: 1600,
           orientacao: "retrato",
         },
-        "Leading-man pose",
-        "Suspiro resting comfortably in someone's lap.",
+        "Alpha pose",
+        "Resting comfortably in someone's lap.",
       ),
       fotoEN(
         {
@@ -141,7 +141,7 @@ export const JORNADA_EN: Ato[] = [
           altura: 1280,
           orientacao: "retrato",
         },
-        "💛",
+        "Recovered from accident",
         "Healthy Suspiro with a floral wrap, on the couch.",
       ),
     ],
@@ -151,12 +151,12 @@ export const JORNADA_EN: Ato[] = [
     rotulo: "Suspiro falls ill",
     titulo: "The Fight So Far",
     paragrafos: [
-      "Then one day we noticed his breathing was labored. We took him to the " +
-        "vet, and he was diagnosed with FeLV and a mediastinal lymphoma — a " +
+      "On March 30th we noticed his breathing was heavy. We quickly took him to the " +
+        "vet, and he was diagnosed with FeLV and a mediastinal lymphoma, a " +
         "type of cancer. Suspiro is strong and is facing treatment with the " +
-        "same courage as always, but the bills are very heavy for us to carry " +
-        "on our own.",
-      "That's why we created this page to ask for help.",
+        "same courage as always, but the bills are growing rapidly on us. ",
+      "That's why we are asking for your help, either directly or to spread the word.",
+	  "Today he's completed 3 cycles of chemo, but there's still a long way to go.",
     ],
     fotos: [
       fotoEN(
@@ -166,8 +166,8 @@ export const JORNADA_EN: Ato[] = [
           altura: 1280,
           orientacao: "retrato",
         },
-        "Skinny little Suspiro :(",
-        "Thin Suspiro with bandages on his chest after a procedure.",
+        "Very skinny :(",
+        "Skinny Suspiro with bandages on his chest after a procedure.",
       ),
       fotoEN(
         {
@@ -189,7 +189,7 @@ export const CONTEUDO_HISTORIA_EN: HistoriaConteudo = {
   jornada: JORNADA_EN,
   // Sem seção de custos no v1 internacional (valores em R$ são placeholder).
   convite:
-    "Every donation is a little piece of hope in Suspiro's treatment. 💛",
+    "Every donation is a little piece of hope in Suspiro's treatment 💛",
 };
 
 // ---------------------------------------------------------------------------
@@ -200,9 +200,9 @@ export const EN = {
   meta: {
     title: "Save Suspiro 🐱",
     description:
-      "Help fund the cancer treatment of Suspiro, a rescued cat. Every donation is a hug in this fight. 💛",
+      "Help fund the cancer treatment of Suspiro, our rescued cat. Every donation helps 💛",
     ogTitle: "Save Suspiro",
-    ogDescription: "Help Suspiro beat cancer — every donation is a hug. 💛",
+    ogDescription: "Help Suspiro beat cancer — every donation helps 💛",
     siteName: "Save Suspiro",
   },
   hero: {
@@ -212,8 +212,8 @@ export const EN = {
       "Suspiro is facing a serious illness: lymphoma. He's going through " +
         "chemotherapy and taking many medications, and he's slowly winning — " +
         "but it's a hard fight.",
-      "Your donation helps pay for his treatment. Every bit of love helps " +
-        "more than you know. 💖",
+      "Your donation helps us pay for his expensive treatment. Every bit of love helps " +
+        "more than you know 💖",
     ],
   },
   chips: [

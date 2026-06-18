@@ -170,8 +170,7 @@ export default function DoacaoFlow() {
           Make a donation
         </h2>
         <p className="mx-auto mt-1 max-w-md text-sm text-mauve/80">
-          Give securely with your card, Apple&nbsp;Pay or Google&nbsp;Pay — you
-          never leave this page.
+          Give securely with your card, Apple&nbsp;Pay or Google&nbsp;Pay
         </p>
       </div>
 

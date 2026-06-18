@@ -69,7 +69,7 @@ export const JORNADA: Ato[] = [
         largura: 576,
         altura: 1280,
         orientacao: "retrato",
-        legenda: "Rei do cobertor",
+        legenda: "Cicatriz acima do nariz",
         alt: "Suspiro saudável e relaxado sobre um cobertor macio.",
       },
       {
@@ -85,7 +85,7 @@ export const JORNADA: Ato[] = [
         largura: 576,
         altura: 1280,
         orientacao: "retrato",
-        legenda: "💛",
+        legenda: "Recuperado do acidente",
         alt: "Suspiro saudável com peitoral floral, no sofá.",
       },
     ],
@@ -95,12 +95,13 @@ export const JORNADA: Ato[] = [
     rotulo: "Suspiro doente",
     titulo: "A Luta Até Agora",
     paragrafos: [
-      "Mas aí, um belo dia, notamos a respiração dele ofegante. Levamos para o " +
+      "Em 30 de março de 2026 notamos a respiração dele ofegante. Levamos para o " +
         "veterinário e ele foi diagnosticado com FelV e um Linfoma de " +
         "mediastino, um tipo de câncer. O Suspiro é forte e está enfrentando o " +
         "tratamento com a mesma coragem de sempre, mas a conta está sendo " +
-        "bastante pesada para a gente enfrentar sozinho.",
+        "bastante pesada.",
       "É por isso que criamos esse site e essa rifa.",
+      "Hoje ele completa 3 ciclos de quimioterapia, mas ainda falta muito."
     ],
     fotos: [
       {
