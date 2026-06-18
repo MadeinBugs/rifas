@@ -216,15 +216,24 @@ export const EN = {
         "more than you know 💖",
     ],
   },
-  chips: [
-    { titulo: "Rescued", texto: "Found hurt 3 years ago" },
-    { titulo: "Fighting", texto: "Lymphoma & FeLV" },
-    { titulo: "Your gift", texto: "Goes to his care" },
-  ],
   familia: {
     titulo: "The Family",
-    alt: "The family's six cats together on the couch and rug: Caju, Bambu, Mirtilo, Coco, Amora and Suspiro",
-    legenda: "Caju, Bambu, Mirtilo, Coco, Amora and Suspiro",
+    alt: "The family's six cats together on the couch and rug: Caju, Bamboo, Mirtilo, Coco, Amora and Suspiro",
+    legenda: "Caju, Bamboo, Mirtilo, Coco, Amora and Suspiro",
+  },
+  felv: {
+    titulo: "About FeLV",
+    fotoAlt: "Bamboo, a beloved family cat who has passed away, in a portrait photo.",
+    legenda: "Bamboo",
+    paragrafos: [
+      "Our beloved Bamboo was also a FeLV victim, even though he was vaccinated.",
+      "FeLV (the feline leukemia virus) is one of the leading infectious " +
+        "causes of death in cats. It spreads through close contact between " +
+        "them.",
+      "The vaccine greatly lowers the risk, but it isn't a full guarantee. " +
+        "That's why it matters so much to learn about it, test new cats before " +
+        "introducing them to the others, and keep vaccinations up to date 💛",
+    ],
   },
   rodape:
     "A donation made with love · Secure payment by card · Your information is only used to process your gift.",

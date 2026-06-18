@@ -101,6 +101,8 @@ export default async function Home() {
 
       <FamiliaGatos />
 
+      <SobreFelv />
+
       <Rodape />
     </main>
   );
@@ -129,6 +131,51 @@ function FamiliaGatos() {
           Caju, Bambu, Mirtilo, Coco, Amora e Suspiro
         </figcaption>
       </figure>
+    </section>
+  );
+}
+
+/** Seção educativa sobre a FeLV, em memória do Bambu. */
+function SobreFelv() {
+  return (
+    <section className="flex flex-col gap-6">
+      <div className="text-center">
+        <h2 className="font-[family-name:var(--font-baloo)] text-3xl font-bold text-mauve sm:text-4xl">
+          Sobre a FeLV
+        </h2>
+      </div>
+
+      <div className="cartao flex flex-col items-center gap-6 p-6 sm:flex-row sm:items-start">
+        <figure className="polaroid w-full max-w-[13rem] shrink-0 -rotate-1">
+          <Image
+            src="/photos/familia/bamboo_portrait.jpeg"
+            alt="Bambu, nosso gato que faleceu, em uma foto de retrato."
+            width={707}
+            height={1067}
+            sizes="(max-width: 640px) 60vw, 13rem"
+            className="h-auto w-full rounded-[0.35rem]"
+          />
+          <figcaption className="pt-2 text-center font-[family-name:var(--font-caveat)] text-base text-mauve/80">
+            Bambu, vítima da FeLV
+          </figcaption>
+        </figure>
+
+        <div className="flex flex-col gap-3 text-base leading-relaxed text-ink/85">
+          <p>
+            Nosso eterno falecido Bambu também foi vítima da FeLV, mesmo
+            vacinado.
+          </p>
+          <p>
+            A FeLV (vírus da leucemia felina) é uma das principais causas
+            infecciosas de morte em gatos. Ela se espalha pelo contato próximo.
+          </p>
+          <p>
+            A vacina reduz bastante o risco, mas não é uma garantia total. Por
+            isso é tão importante se informar, testar gatos novos antes de
+            apresentá-los aos outros e manter a vacinação em dia 💛
+          </p>
+        </div>
+      </div>
     </section>
   );
 }

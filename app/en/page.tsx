@@ -1,7 +1,5 @@
 import Image from "next/image";
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
-import { PawPrint, Heart, Gift } from "@phosphor-icons/react/dist/ssr";
 import HistoriaGato from "@/components/HistoriaGato";
 import DoacaoFlow from "@/components/DoacaoFlow";
 import { FOTO_CAPA } from "@/lib/fotos";
@@ -47,13 +45,13 @@ export default function PaginaDoacaoEN() {
     <main className="mx-auto flex min-h-full w-full max-w-3xl flex-1 flex-col gap-12 px-5 py-10 sm:px-6 sm:py-14">
       <Capa />
 
-      <Chips />
-
       <HistoriaGato conteudo={CONTEUDO_HISTORIA_EN} />
 
       <DoacaoFlow />
 
       <Familia />
+
+      <SobreFelv />
 
       <Rodape />
     </main>
@@ -115,44 +113,6 @@ function TituloOnda() {
   );
 }
 
-/** Três "stickers" com um resumo acolhedor da causa. */
-function Chips() {
-  const icones: ReactNode[] = [
-    <PawPrint key="paw" weight="duotone" size={24} aria-hidden />,
-    <Heart key="heart" weight="duotone" size={24} aria-hidden />,
-    <Gift key="gift" weight="duotone" size={24} aria-hidden />,
-  ];
-  return (
-    <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-      {EN.chips.map((c, i) => (
-        <Chip key={c.titulo} icone={icones[i]} titulo={c.titulo} texto={c.texto} />
-      ))}
-    </section>
-  );
-}
-
-function Chip({
-  icone,
-  titulo,
-  texto,
-}: {
-  icone: ReactNode;
-  titulo: string;
-  texto: string;
-}) {
-  return (
-    <div className="etiqueta flex flex-col items-center gap-1.5 px-4 py-4 text-center">
-      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-peach/30 text-rose-deep">
-        {icone}
-      </span>
-      <p className="font-[family-name:var(--font-quicksand)] text-sm font-semibold text-rose-deep">
-        {titulo}
-      </p>
-      <p className="text-sm text-mauve">{texto}</p>
-    </div>
-  );
-}
-
 /** A família de seis gatos — foto coletiva. */
 function Familia() {
   return (
@@ -180,16 +140,44 @@ function Familia() {
   );
 }
 
+/** Educational section about FeLV, in memory of Bambu. */
+function SobreFelv() {
+  return (
+    <section className="flex flex-col gap-6">
+      <div className="text-center">
+        <h2 className="font-[family-name:var(--font-baloo)] text-3xl font-bold text-mauve sm:text-4xl">
+          {EN.felv.titulo}
+        </h2>
+      </div>
+
+      <div className="cartao flex flex-col items-center gap-6 p-6 sm:flex-row sm:items-start">
+        <figure className="polaroid w-full max-w-[13rem] shrink-0 -rotate-1">
+          <Image
+            src="/photos/familia/bamboo_portrait.jpeg"
+            alt={EN.felv.fotoAlt}
+            width={707}
+            height={1067}
+            sizes="(max-width: 640px) 60vw, 13rem"
+            className="h-auto w-full rounded-[0.35rem]"
+          />
+          <figcaption className="pt-2 text-center font-[family-name:var(--font-caveat)] text-base text-mauve/80">
+            {EN.felv.legenda}
+          </figcaption>
+        </figure>
+
+        <div className="flex flex-col gap-3 text-base leading-relaxed text-ink/85">
+          {EN.felv.paragrafos.map((p, i) => (
+            <p key={i}>{p}</p>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Rodape() {
   return (
     <footer className="mt-auto flex flex-col items-center gap-2 pt-6 text-center text-xs text-mauve/70">
-      <a
-        href={PT_SITE_URL}
-        aria-label={EN.verEmPortuguesAria}
-        className="font-[family-name:var(--font-quicksand)] text-sm font-semibold text-rose-deep underline-offset-4 hover:underline"
-      >
-        {EN.verEmPortugues}
-      </a>
       <span className="text-base" aria-hidden>
         🐾 💛 🐾
       </span>
