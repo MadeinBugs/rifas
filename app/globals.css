@@ -58,6 +58,15 @@ body {
   font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* O Tailwind v4 deixou de aplicar cursor:pointer em botões por padrão.
+   Restaura o "dedinho" em botões e elementos clicáveis (menos os desabilitados). */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 /* ── Primitivas fofas ─────────────────────────────────────── */
 
 .cartao {

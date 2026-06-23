@@ -120,7 +120,7 @@ export default async function AgradecerPage() {
         ) : (
           <div className="space-y-4">
             {participantes.map((p) => {
-              const mensagem = montarMensagemAgradecimento(p.nome, p.numeros);
+              const mensagem = montarMensagemAgradecimento(p.nome);
               const href = linkWhatsApp(p.whatsapp, mensagem);
               const numerosStr = p.numeros.join(",");
               return (

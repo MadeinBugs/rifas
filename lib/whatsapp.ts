@@ -6,7 +6,11 @@
 // Tudo funciona com o WhatsApp PESSOAL (não precisa de WhatsApp Business nem de
 // API): o link abre a conversa com o texto pronto e a pessoa só toca em "enviar".
 
-import { PREMIO } from "@/lib/rifa";
+// Emoji escrito como escape \u{...} (e não o caractere literal): o emoji "cru"
+// de 4 bytes pode virar um caractere inválido dependendo de como o arquivo é
+// salvo/transportado. O escape é ASCII no código e vira o emoji certo em
+// runtime (e no wa.me). Para outros emojis, use o code point: "\u{1F43E}" etc.
+const CORACAO_AMARELO = "\u{1F49B}"; // U+1F49B (coracao amarelo)
 
 /**
  * Converte um telefone salvo (ex.: "(11) 99999-9999") para o formato que o
@@ -29,22 +33,11 @@ export function primeiroNome(nome: string | null | undefined): string {
   return limpo ? limpo.split(/\s+/)[0] : "";
 }
 
-/** "o número 7" | "os números 7, 23 e 41" — linguagem natural para a mensagem. */
-function listarNumeros(numeros: number[]): string {
-  if (numeros.length === 0) return "seus números";
-  if (numeros.length === 1) return `o número ${numeros[0]}`;
-  const corpo = numeros.slice(0, -1).join(", ");
-  return `os números ${corpo} e ${numeros[numeros.length - 1]}`;
-}
-
 /**
  * Mensagem de agradecimento ao participante. Sem data de sorteio (o sorteio é
  * manual). Edite o texto aqui se quiser mudar o tom.
  */
-export function montarMensagemAgradecimento(
-  nome: string | null,
-  numeros: number[],
-): string {
+export function montarMensagemAgradecimento(nome: string | null): string {
   const primeiro = primeiroNome(nome);
   const saudacao = primeiro ? `Oiee ${primeiro}! Tudo bem?` : "Oiee! Tudo bem?";
   return [
@@ -52,7 +45,7 @@ export function montarMensagemAgradecimento(
     "",
     "Aqui é a Bela, dona do Suspiro. Muito obrigada por participar da nossa rifa e ajudar no tratamento do nosso Suspirinho.",
     "",
-    "Assim que a rifa fechar a gente realiza o sorteio e avisa por aqui. De coração, muito obrigada pelo carinho, faz muita diferença <3",
+    `Assim que a rifa fechar a gente realiza o sorteio e avisa por aqui. De coração, muito obrigada pelo carinho, faz muita diferença ${CORACAO_AMARELO}`,
   ].join("\n");
 }
 
