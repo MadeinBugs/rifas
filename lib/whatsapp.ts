@@ -46,15 +46,13 @@ export function montarMensagemAgradecimento(
   numeros: number[],
 ): string {
   const primeiro = primeiroNome(nome);
-  const saudacao = primeiro ? `Oi, ${primeiro}! 💛` : "Oi! 💛";
+  const saudacao = primeiro ? `Oiee ${primeiro}! Tudo bem?` : "Oiee! Tudo bem?";
   return [
     saudacao,
     "",
-    "Aqui é a Bela. Muito obrigada por participar da nossa ação entre amigos para ajudar no tratamento do Suspiro! 🐾",
+    "Aqui é a Bela, dona do Suspiro. Muito obrigada por participar da nossa rifa e ajudar no tratamento do nosso Suspirinho.",
     "",
-    `Você ficou com ${listarNumeros(numeros)} e está concorrendo a ${PREMIO}.`,
-    "",
-    "Assim que a rifa fechar a gente realiza o sorteio e avisa por aqui. De coração, muito obrigada pelo carinho! 🧡",
+    "Assim que a rifa fechar a gente realiza o sorteio e avisa por aqui. De coração, muito obrigada pelo carinho, faz muita diferença <3",
   ].join("\n");
 }
 
