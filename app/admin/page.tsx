@@ -5,6 +5,7 @@ import {
   logoutAction,
   marcarPedidoPagoAction,
   desmarcarPedidoPagoAction,
+  marcarNumerosPagosManualAction,
 } from "./actions";
 
 interface CompradorJoin {
@@ -43,8 +44,19 @@ interface RawPedidoRow {
     | null;
 }
 
-export default async function AdminPage() {
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    marcados?: string;
+    japagos?: string;
+    invalidos?: string;
+    erro?: string;
+  }>;
+}) {
   await requireAuth();
+
+  const { marcados, japagos, invalidos, erro } = await searchParams;
 
   const supabase = createServiceClient();
   
@@ -146,6 +158,98 @@ export default async function AdminPage() {
           <CardEstatistica titulo="Números Pagos" valor={pagos} cor="text-green-600" bg="bg-green-50" />
           <CardEstatistica titulo="Reservados (Aguardando)" valor={reservados} cor="text-orange-600" bg="bg-orange-50" />
           <CardEstatistica titulo="Livre" valor={livres} cor="text-gray-600" bg="bg-gray-100" />
+        </div>
+
+        {/* Retorno da ação de marcar pagamento manual */}
+        {(erro || marcados !== undefined) && (
+          <div
+            className={`rounded-lg border p-4 text-sm ${
+              erro
+                ? "border-red-200 bg-red-50 text-red-700"
+                : "border-green-200 bg-green-50 text-green-800"
+            }`}
+          >
+            {erro ? (
+              <p>⚠️ {erro}</p>
+            ) : (
+              <div className="space-y-1">
+                <p className="font-semibold">
+                  {Number(marcados) > 0
+                    ? `✓ ${marcados} número(s) marcados como pagos.`
+                    : "Nenhum número novo marcado."}
+                </p>
+                {japagos && (
+                  <p className="text-green-700/80">
+                    Já estavam pagos (ignorados): {japagos}
+                  </p>
+                )}
+                {invalidos && (
+                  <p className="text-green-700/80">
+                    Ignorados (inválidos): {invalidos}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Pagamento manual: marcar números pagos por fora (Pix direto) */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+          <div className="p-6 border-b border-gray-100">
+            <h2 className="text-xl font-bold text-gray-800">
+              Marcar pagamento manual (Pix por fora)
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Para quando alguém paga o Pix direto, sem passar pelo site. Informe
+              os números (ex.: <code className="font-mono">10, 11, 12</code> ou{" "}
+              <code className="font-mono">10-19</code>) e, se quiser, o nome/WhatsApp
+              de quem pagou. Números já pagos são ignorados.
+            </p>
+          </div>
+          <form
+            action={marcarNumerosPagosManualAction}
+            className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end"
+          >
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Números *
+              </label>
+              <input
+                name="numeros"
+                required
+                placeholder="Ex.: 10, 11, 12 ou 10-19"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none font-mono"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nome (opcional)
+              </label>
+              <input
+                name="nome"
+                placeholder="Quem pagou"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                WhatsApp (opcional)
+              </label>
+              <input
+                name="whatsapp"
+                placeholder="(11) 9..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+              />
+            </div>
+            <div className="sm:col-span-2 lg:col-span-4">
+              <button
+                type="submit"
+                className="bg-green-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:bg-green-700 transition shadow-sm"
+              >
+                ✓ Marcar como pago
+              </button>
+            </div>
+          </form>
         </div>
 
         {/* Pedidos: marcar / desmarcar pagamento (testes de Pix + resgate manual) */}
