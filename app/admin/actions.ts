@@ -267,3 +267,50 @@ export async function marcarNumerosPagosManualAction(
   );
 }
 
+/** Lê os números (separados por vírgula) do formulário de agradecimento. */
+function numerosDoForm(formData: FormData): number[] {
+  return (formData.get("numeros")?.toString() ?? "")
+    .split(",")
+    .map((n) => parseInt(n.trim(), 10))
+    .filter((n) => Number.isInteger(n));
+}
+
+/**
+ * Marca como "agradecido" os números informados — registra que o organizador
+ * já mandou o obrigada no WhatsApp para aquela pessoa (envio manual).
+ */
+export async function marcarAgradecidoAction(
+  formData: FormData,
+): Promise<void> {
+  await requireAuth();
+
+  const numeros = numerosDoForm(formData);
+  if (numeros.length === 0) return;
+
+  const supabase = createServiceClient();
+  await supabase
+    .from("compradores")
+    .update({ agradecido_em: new Date().toISOString() })
+    .in("numero", numeros);
+
+  revalidatePath("/admin/agradecer");
+}
+
+/** Desfaz a marcação de "agradecido" para os números informados. */
+export async function desmarcarAgradecidoAction(
+  formData: FormData,
+): Promise<void> {
+  await requireAuth();
+
+  const numeros = numerosDoForm(formData);
+  if (numeros.length === 0) return;
+
+  const supabase = createServiceClient();
+  await supabase
+    .from("compradores")
+    .update({ agradecido_em: null })
+    .in("numero", numeros);
+
+  revalidatePath("/admin/agradecer");
+}
+

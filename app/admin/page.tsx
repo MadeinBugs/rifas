@@ -139,6 +139,9 @@ export default async function AdminPage({
             <p className="text-gray-500 mt-1">Acompanhamento e gestão da Rifa do Gatinho</p>
           </div>
           <div className="flex items-center gap-4">
+            <a href="/admin/agradecer" className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition shadow-sm">
+              💌 Agradecer participantes
+            </a>
             <a href="/sorteio" className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition shadow-sm">
               🎉 Ir para o Sorteio
             </a>

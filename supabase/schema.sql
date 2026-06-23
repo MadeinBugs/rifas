@@ -54,6 +54,10 @@ end $$;
 alter table public.compradores
   add column if not exists pedido_id uuid references public.pedidos(id) on delete set null;
 
+-- Marca quando o organizador agradeceu o participante (envio manual via WhatsApp).
+alter table public.compradores
+  add column if not exists agradecido_em timestamptz;
+
 -- ── Popular 1..500 (idempotente) ──
 insert into public.numeros (numero)
 select generate_series(1, 500)
