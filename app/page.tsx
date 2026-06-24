@@ -298,7 +298,7 @@ function Rodape() {
   return (
     <footer className="mt-auto flex flex-col items-center gap-3 pt-6 text-center text-xs text-mauve/70">
       <a
-        href="https://www.instagram.com/lar.amorinha?igsh=MWNhYm9objhsNjVvZw=="
+        href="https://www.instagram.com/oi.belbel?igsh=MWNhYm9objhsNjVvZw=="
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Instagram do Lar Amorinha"
