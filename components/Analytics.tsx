@@ -1,7 +1,8 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import Script from "next/script";
+import { track } from "@/lib/analytics";
 
 // Instância Umami self-hosted (removendo a "/" final, se houver). Os Website
 // IDs de cada site são criados no painel do Umami e injetados via env vars.
@@ -30,11 +31,31 @@ const semInscricao = () => () => {};
  * efeito: no servidor devolve `null`; no cliente, o ID do domínio atual.
  */
 export default function Analytics() {
+  const plataformaRef = useRef<string | null>(null);
+
   const websiteId = useSyncExternalStore(
     semInscricao,
     () => idDoSite(window.location.hostname) ?? null,
     () => null,
   );
+
+  // Lê ?audience= e limpa a URL no mount (antes do script Umami carregar),
+  // para que o parâmetro não apareça em links compartilhados ou bookmarks.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const plataforma = params.get("audience");
+    if (!plataforma) return;
+    plataformaRef.current = plataforma;
+    params.delete("audience");
+    const novaQuery = params.toString();
+    window.history.replaceState(
+      {},
+      "",
+      window.location.pathname +
+        (novaQuery ? `?${novaQuery}` : "") +
+        window.location.hash,
+    );
+  }, []);
 
   if (!URL_UMAMI || !websiteId) return null;
 
@@ -43,6 +64,11 @@ export default function Analytics() {
       src={`${URL_UMAMI}/script.js`}
       data-website-id={websiteId}
       strategy="afterInteractive"
+      onLoad={() => {
+        if (plataformaRef.current) {
+          track("entrada", { plataforma: plataformaRef.current });
+        }
+      }}
     />
   );
 }
