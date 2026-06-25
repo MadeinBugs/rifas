@@ -8,6 +8,7 @@ import { PRECO_POR_NUMERO, formatBRL } from "@/lib/rifa";
 import { dispararCoracoes } from "@/lib/efeitos";
 import { tocarChime, tocarPop, tocarVoltar } from "@/lib/som";
 import IconePix from "@/components/IconePix";
+import { track } from "@/lib/analytics";
 
 type Props = { numeros: number[] };
 
@@ -101,9 +102,11 @@ export default function ApoiarFlow({ numeros }: Props) {
         captchaRef.current?.reset();
         setCaptchaToken(null);
         if (resp.status === 409) {
+          track("erro_reserva", { motivo: "indisponivel" });
           setEtapa("indisponivel");
           return;
         }
+        track("erro_reserva", { motivo: "servidor", status: resp.status });
         setErro(dados.erro ?? "Erro ao reservar. Tente novamente.");
         setEtapa("form");
         return;
@@ -111,7 +114,9 @@ export default function ApoiarFlow({ numeros }: Props) {
       setResultado(dados as Resultado);
       setRestante((dados.expiraEmMinutos ?? 15) * 60);
       setEtapa("pix");
+      track("pix_gerado", { quantidade, total: dados.total });
     } catch {
+      track("erro_reserva", { motivo: "conexao" });
       captchaRef.current?.reset();
       setCaptchaToken(null);
       setErro("Falha de conexão. Tente novamente.");
@@ -158,7 +163,8 @@ export default function ApoiarFlow({ numeros }: Props) {
     if (etapa !== "pago") return;
     dispararCoracoes();
     tocarChime();
-  }, [etapa]);
+    track("pagamento_confirmado", { quantidade, total: resultado?.total });
+  }, [etapa, quantidade, resultado]);
 
   // Turnstile (Managed mode): resolve em background para a grande maioria.
   // Só mostra desafio visual para tráfego identificado como suspeito.

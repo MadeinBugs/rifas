@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Baloo_2, Quicksand, Nunito, Caveat } from "next/font/google";
 import { PT_SITE_URL, EN_SITE_URL } from "@/lib/site";
+import Analytics from "@/components/Analytics";
 import "./globals.css";
 
 // Display: nome do Suspiro, títulos dos atos, números grandes.
@@ -86,6 +87,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         {children}
+        <Analytics />
       </body>
     </html>
   );

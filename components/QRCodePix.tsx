@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { track } from "@/lib/analytics";
 
 type Props = {
   /** Imagem PNG base64 vinda do Mercado Pago (sem o prefixo data:). */
@@ -35,6 +36,7 @@ export default function QRCodePix({ qrCodeBase64, qrCode }: Props) {
     try {
       await navigator.clipboard.writeText(qrCode);
       setCopiado(true);
+      track("pix_copiado");
       setTimeout(() => setCopiado(false), 2000);
     } catch {
       // Clipboard pode estar indisponível; o usuário ainda pode selecionar manualmente.

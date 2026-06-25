@@ -20,6 +20,7 @@ import {
   formatUSD,
   valorDoacaoValido,
 } from "@/lib/doacao";
+import { track } from "@/lib/analytics";
 
 // Carrega o Stripe.js uma única vez (padrão recomendado).
 const chavePublica = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
@@ -78,6 +79,7 @@ export default function DoacaoFlow() {
     }
     setErro(null);
     setCriando(true);
+    track("donation_started", { amount: valorCents / 100 });
     try {
       const resp = await fetch("/api/donate", {
         method: "POST",
@@ -91,6 +93,7 @@ export default function DoacaoFlow() {
         .json()
         .catch(() => ({}));
       if (!resp.ok || !data.clientSecret) {
+        track("donation_error", { reason: "create_intent" });
         setErro(data.erro ?? "We couldn't start the donation. Please try again.");
         setCriando(false);
         return;
@@ -98,6 +101,7 @@ export default function DoacaoFlow() {
       setClientSecret(data.clientSecret);
       setCriando(false);
     } catch {
+      track("donation_error", { reason: "connection" });
       setErro("Network error. Please check your connection and try again.");
       setCriando(false);
     }
@@ -107,6 +111,7 @@ export default function DoacaoFlow() {
     setValorPago(valorCents);
     setSucesso(true);
     setClientSecret(null);
+    track("donation_success", { amount: valorCents / 100 });
   }
 
   function recomecar() {
@@ -295,6 +300,7 @@ function FormularioPagamento({
     });
 
     if (error) {
+      track("donation_error", { reason: "payment" });
       setErro(error.message ?? "Something went wrong. Please try again.");
       setProcessando(false);
       return;
@@ -305,6 +311,7 @@ function FormularioPagamento({
       return;
     }
 
+    track("donation_error", { reason: "incomplete" });
     setErro("The payment wasn't completed. Please try again.");
     setProcessando(false);
   }

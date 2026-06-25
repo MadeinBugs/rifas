@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useNumeros } from "@/components/NumerosProvider";
 import { PRECO_POR_NUMERO, formatBRL } from "@/lib/rifa";
 import { tocarLimpar, tocarContinuar } from "@/lib/som";
+import { track } from "@/lib/analytics";
 
 /**
  * Barra fofa fixa no rodapé que aparece quando há números escolhidos.
@@ -48,7 +49,10 @@ export default function BarraSelecao() {
 
         <Link
           href={href}
-          onClick={() => tocarContinuar()}
+          onClick={() => {
+            tocarContinuar();
+            track("checkout_iniciado", { quantidade });
+          }}
           className="botao-primario shrink-0 px-5 py-2.5 text-sm"
         >
           Continuar
