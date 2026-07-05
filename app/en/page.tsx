@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import HistoriaGato from "@/components/HistoriaGato";
 import DoacaoFlow from "@/components/DoacaoFlow";
+import Atualizacoes from "@/components/Atualizacoes";
 import { FOTO_CAPA } from "@/lib/fotos";
 import { CONTEUDO_HISTORIA_EN, EN } from "@/lib/textos";
 import { PT_SITE_URL, EN_SITE_URL } from "@/lib/site";
@@ -49,6 +50,8 @@ export default function PaginaDoacaoEN() {
       <HistoriaGato conteudo={CONTEUDO_HISTORIA_EN} />
 
       <DoacaoFlow />
+
+      <Atualizacoes locale="en" />
 
       <Familia />
 

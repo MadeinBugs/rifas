@@ -6,6 +6,7 @@ import { NumerosProvider } from "@/components/NumerosProvider";
 import BarraProgresso from "@/components/BarraProgresso";
 import BarraSelecao from "@/components/BarraSelecao";
 import BotaoAjudar from "@/components/BotaoAjudar";
+import Atualizacoes from "@/components/Atualizacoes";
 import { FOTO_CAPA } from "@/lib/fotos";
 import {
   PRECO_POR_NUMERO,
@@ -98,6 +99,8 @@ export default async function Home() {
           </section>
         </>
       )}
+
+      <Atualizacoes locale="pt" />
 
       <FamiliaGatos />
 
