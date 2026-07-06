@@ -58,13 +58,13 @@ export const TEXTOS: Record<
   }
 > = {
   pt: {
-    secao: "Novidades",
+    secao: "Atualizações",
     subtitulo: "Acompanhe a recuperação",
-    verTodas: "Ver todas as novidades",
+    verTodas: "Ver todas as atualizações",
     lerMais: "Ler mais",
-    voltar: "Voltar para as novidades",
-    tituloPagina: "Novidades",
-    vazio: "Ainda não há novidades por aqui. Volte em breve!",
+    voltar: "Voltar para as atualizações",
+    tituloPagina: "Atualizações",
+    vazio: "Ainda não há atualizações por aqui. Volte em breve!",
   },
   en: {
     secao: "Updates",
