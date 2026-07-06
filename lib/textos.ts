@@ -53,12 +53,12 @@ export const CONTEUDO_HISTORIA_PT: HistoriaConteudo = {
     aviso:
       "Valores somados a partir dos comprovantes de pagamento do tratamento do Suspiro.",
     itens: [
-      { item: "Quimioterapia, internação e exames", valor: "R$ 5.830,00" },
-      { item: "Medicamentos manipulados (abr–mai)", valor: "R$ 747,00" },
-      { item: "Exames de controle (ultrassom)", valor: "R$ 394,80" },
+      { item: "Quimioterapia e internação", valor: "R$ 5.830,00" },
+      { item: "Medicamentos manipulados (abr–mai)", valor: "R$ 992,00" },
+      { item: "Exames de controle", valor: "R$ 864,80" },
     ],
     totalLabel: "Total em comprovantes",
-    totalValor: "R$ 6.971,80",
+    totalValor: "R$ 7.686,80",
     comprovantesTitulo: "Comprovantes de pagamento",
     comprovantes: [
       {
