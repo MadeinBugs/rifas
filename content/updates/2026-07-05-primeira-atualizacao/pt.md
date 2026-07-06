@@ -26,7 +26,7 @@ Ainda assim, é necessário finalizar o ciclo para que o linfoma não volte a ap
 
 ![Raio X](/photos/atualizacao/raio-x.png)
 
-Mesmo com essa notícia boa, a luta é diária porque a quimioterapia faz muito mal. O peso dele saudável era de **5.600kg** e agora ele está com **2.900kg**.
+Mesmo com essa notícia boa, a luta é diária porque a quimioterapia faz muito mal. O peso dele saudável era de **5.600kg** e agora ele está com **2.600kg**.
 
 Ele emagreceu tanto que não consegue mais se esquentar sozinho, por isso precisa até de um aquecedor.
 

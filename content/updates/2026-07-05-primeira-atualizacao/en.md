@@ -35,7 +35,7 @@ come back.
 ![X-ray](/photos/atualizacao/raio-x.png)
 
 Even with this good news, the fight is daily — chemotherapy takes a heavy toll.
-His healthy weight was **5.600 kg** and he is now down to **2.900 kg**.
+His healthy weight was **5.600 kg** and he is now down to **2.600 kg**.
 
 He lost so much weight that he can no longer keep himself warm on his own,
 so he even needs a heater now.
